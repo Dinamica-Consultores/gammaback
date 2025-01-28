@@ -21,7 +21,11 @@
     {!! Form::label('per_cont_phone', 'Telefono de la Persona de Contacto:') !!}
     {!! Form::text('per_cont_phone', null, ['class' => 'form-control', 'required', 'minlength' => 3, 'maxlength' => 255,'name'=>'per_cont_phone']) !!}
 </div>
-
+<!-- Per Cont Phone Field -->
+<div class="form-group col-sm-6">
+    {!! Form::label('responsable', 'Responsable de Cliente:') !!}
+    {!! Form::text('responsable', null, ['class' => 'form-control', 'required', 'minlength' => 3, 'maxlength' => 255]) !!}
+</div>
 <!-- Campo Field -->
 <div class="form-group col-sm-6">
     {!! Form::label('ano', 'Año Fiscal Inicio:') !!}
@@ -32,7 +36,7 @@
     {!! Form::select('mes', ['1'=>'Enero','2'=>'Febrero','3'=>'Marzo','4'=>'Abril','5'=>'Mayo','6'=>'Junio','7'=>'Julio','8'=>'Agosto','9'=>'Septiembre','10'=>'Octubre','11'=>'Noviembre','12'=>'Diciembre'], null, ['class' => 'form-control custom-select','required']) !!}
 </div>
 <div class="form-group col-sm-12">
-    {!! Form::label('id_moneda', 'Tipo de Moneda:') !!}
+    {!! Form::label('id_moneda', 'Moneda Funcional:') !!}
     {!! Form::select('id_moneda', ['0'=>'Pesos Uruguayo','1'=>'Dolares Americanos'], null, ['class' => 'form-control custom-select','required']) !!}
 </div>
 <div class="form-group col-sm-6">
@@ -51,7 +55,7 @@
 
 <!-- Campo Field -->
 <div class="form-group col-sm-6">
-    {!! Form::label('campo', 'Campo Facturacion:') !!}
+    {!! Form::label('campo', 'Información de cliente:') !!}
     {!! Form::textarea('campo', null, ['class' => 'form-control']) !!}
 </div>
 @push('page_scripts')

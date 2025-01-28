@@ -13,6 +13,7 @@ class company extends Model
         'per_cont_name',
         'per_cont_email',
         'per_cont_phone',
+        'responsable',
         'logo',
         'campo',
         'ispresupuesto',
@@ -28,6 +29,7 @@ class company extends Model
         'per_cont_name' => 'string',
         'per_cont_email' => 'string',
         'per_cont_phone' => 'string',
+        'responsable'=>'string',
         'logo' => 'string',
         'campo' => 'string',
         'ispresupuesto' => 'boolean',
@@ -42,6 +44,7 @@ class company extends Model
         'razon_social' => 'required|min:3|max:255',
         'per_cont_name' => 'required|min:3|max:255',
         'per_cont_email' => 'required|min:3|max:255',
+        'responsable' => 'required|min:3|max:255',
         'per_cont_phone' => 'required|min:3|max:255',
         'id_moneda'=>'required'
     ];

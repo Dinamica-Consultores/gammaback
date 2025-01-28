@@ -12,7 +12,7 @@
 <th>Cantidad Cliente a ingresar MAX</th>
 @endif
                 <th>Logo</th>
-                <th>Campo Facturacion</th>
+                <th>Información de cliente</th>
           
                 <th colspan="3">Action</th>
             </tr>

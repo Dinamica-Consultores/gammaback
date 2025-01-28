@@ -28,10 +28,14 @@
     <img src="{{ asset('storage/'.$company->logo) }}" style="width:50px;height:50px;"/>
 
 </div>
-
+<!-- Per Cont Name Field -->
+<div class="col-sm-12">
+    {!! Form::label('responsable', 'Responsable del Cliente:') !!}
+    <p>{{ $company->responsable }}</p>
+</div>
 <!-- Campo Field -->
 <div class="col-sm-12">
-    {!! Form::label('campo', 'Campo Facturacion:') !!}
+    {!! Form::label('campo', 'Información de cliente:') !!}
     <p>{{ $company->campo }}</p>
 </div>
 

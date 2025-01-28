@@ -142,6 +142,12 @@
         <p>Usuario y Red Comercial</p>
     </a>
 </li>
+<li class="nav-item">
+    <a href="{{ route('bitacoras.index') }}" class="nav-link {{ Request::is('bitacoras*') ? 'active' : '' }}">
+        <i class="nav-icon fas fa-home"></i>
+        <p>Bitacoras</p>
+    </a>
+</li>
     </ul>
 
 </li>
@@ -179,3 +185,5 @@
 
 
 @endif
+
+

@@ -36,3 +36,4 @@ Route::resource('estudios_usuarios', App\Http\Controllers\estudios_usuariosContr
 Route::resource('grupo_economicos', App\Http\Controllers\grupo_economicosController::class);
 Route::resource('grupo_economicos_empresas', App\Http\Controllers\grupo_economicos_empresasController::class);
 Route::resource('usuario_grupoeconomicos', App\Http\Controllers\usuario_grupoeconomicoController::class);
+Route::resource('bitacoras', App\Http\Controllers\bitacoraController::class);
