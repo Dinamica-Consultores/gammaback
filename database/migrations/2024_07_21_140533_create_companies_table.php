@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('per_cont_email');
             $table->string('per_cont_phone');
             $table->string('responsable');
-            
             $table->string('logo')->nullable();
             $table->string('campo')->nullable();
             $table->boolean('ispresupuesto');

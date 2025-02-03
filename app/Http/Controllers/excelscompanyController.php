@@ -81,7 +81,7 @@ class excelscompanyController extends AppBaseController
         $data= DB::transaction(function () use ($request,$tipo,$dataarray,$path) {
             try {
             $input=$request;
-
+            $this->DeleteAllByIDCompany($input['id_company']);
             $input['date']=date('Y-m-d H:i:s', strtotime($request['date']));
             $excelscompany = $this->excelscompanyRepository->create($input);
 
@@ -247,10 +247,11 @@ class excelscompanyController extends AppBaseController
     }
     public function dataReturnTIPO_DE_CAMBIO($dataarray,$idExcelCompany){       
          $func = function($valor) use ($idExcelCompany) {
+         $fecha=is_numeric($valor[0])?\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($valor[0])->format('Y-m-d'):$valor[0];
         return [
-            'fecha'=>date('Y-m-d H:i:s', strtotime($valor[0]==NULL?'':$valor[0])),
-            'mes'=>date('n', strtotime($valor[0]==NULL?'':$valor[0])),
-            'ano'=>date('Y', strtotime($valor[0]==NULL?'':$valor[0])),
+            'fecha'=>date('Y-m-d H:i:s', strtotime($fecha==NULL?'':$fecha)),
+            'mes'=>date('n', strtotime($fecha==NULL?'':$fecha)),
+            'ano'=>date('Y', strtotime($fecha==NULL?'':$fecha)),
             'dolar_compra'=>$valor[1]==NULL?'1':str_replace(',','',$valor[1]),
             'dolar_venta'=>$valor[2]==NULL?'1':str_replace(',','',$valor[2]),
             'dolar_promedio'=>$valor[3]==NULL?'1':str_replace(',','',$valor[3]),
@@ -407,6 +408,19 @@ class excelscompanyController extends AppBaseController
         $in_ventasDelete=in_ventas::where('id_excel',$idExcelCompany)->delete();
         $categorizacion_cts_balanceDelete=categorizacion_cts_balance::where('id_excel',$idExcelCompany)->delete();
         $in_balanceDelete=in_balance::where('id_excel',$idExcelCompany)->delete();
+
+    }
+    public function DeleteAllByIDCompany($idExcelCompany){
+        $SucursalesDelete=sucursales::join('excelscompanies','excelscompanies.id','sucursales.id_excel')->where('excelscompanies.id_company',$idExcelCompany)->delete();
+        $clasificacion_cuenta_resulDelete=clasificacion_cuenta_resul::join('excelscompanies','excelscompanies.id','clasificacion_cuenta_resuls.id_excel')->where('excelscompanies.id_company',$idExcelCompany)->delete();
+        $in_resultadoDelete=in_resultado::join('excelscompanies','excelscompanies.id','in_resultados.id_excel')->where('excelscompanies.id_company',$idExcelCompany)->delete();
+        $in_presupuestosDelete=in_presupuestos::join('excelscompanies','excelscompanies.id','in_presupuestos.id_excel')->where('excelscompanies.id_company',$idExcelCompany)->delete();
+        $tipo_cambioDelete=tipo_cambio::join('excelscompanies','excelscompanies.id','tipo_cambios.id_excel')->where('excelscompanies.id_company',$idExcelCompany)->delete();
+        $setup_analisisDelete=setup_analisis::join('excelscompanies','excelscompanies.id','setup_analises.id_excel')->where('excelscompanies.id_company',$idExcelCompany)->delete();
+        $in_ventasDelete=in_ventas::join('excelscompanies','excelscompanies.id','in_ventas.id_excel')->where('excelscompanies.id_company',$idExcelCompany)->delete();
+        $categorizacion_cts_balanceDelete=categorizacion_cts_balance::join('excelscompanies','excelscompanies.id','categorizacion_cts_balances.id_excel')->where('excelscompanies.id_company',$idExcelCompany)->delete();
+        $in_balanceDelete=in_balance::join('excelscompanies','excelscompanies.id','in_balances.id_excel')->where('excelscompanies.id_company',$idExcelCompany)->delete();
+        $excelCompanye=excelscompany::where('id_company',$idExcelCompany)->delete();
 
     }
     /**
