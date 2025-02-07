@@ -453,6 +453,10 @@ class in_presupuestosAPIController extends AppBaseController
         clasificacion_cuenta_resuls.nombre,
         clasificacion_cuenta_resuls.origen,
         clasificacion_cuenta_resuls.grupo,
+        clasificacion_cuenta_resuls.clasificacion_ratios_financ,
+        clasificacion_cuenta_resuls.clasificacion_punto_equilibrio,
+        clasificacion_cuenta_resuls.clasificacion_er,
+        clasificacion_cuenta_resuls.clasificacion_ebit_ebitda,
         clasificacion_cuenta_resuls.nivel_1,
         in_presupuestos.ano,
         in_presupuestos.mes'))

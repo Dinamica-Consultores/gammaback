@@ -71,6 +71,7 @@ Route::controller(App\Http\Controllers\API\in_presupuestosAPIController::class)-
     Route::get('/showInformER/{year}/{month}/{sucursal}', 'showInformER');
     Route::get('/showInformERFiscal/{year}/{month}/{yearfiscal}/{monthfiscal}/{sucursal}', 'showInformERFiscal');
     Route::get('/showERevolutivo/{year}/{month}/{sucursal}', 'showDataErEvolutivo');
+    Route::get('/showDataEvolutivo/{year}/{month}/{sucursal}', 'showDataErEvolutivo');
     Route::get('/showEstadisticas/{sucursal}', 'showEstadisticas');
     });
 });
