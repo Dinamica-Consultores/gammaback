@@ -8,7 +8,7 @@
 
 <body class="mantener-transición barra lateral-mini diseño-fijo">
     </br>
-    <p>Se ah creado un usuario nuevo para GAMMA nivel {{$dato['mensaje']}}</p>
+    <p>Se ha creado un usuario nuevo para GAMMA nivel {{$dato['mensaje']}}</p>
 </br> 
 <p style="font-weigth:bold;">Utilice este link para Ingresar</p>
 </br>
