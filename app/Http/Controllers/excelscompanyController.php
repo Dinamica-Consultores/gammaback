@@ -33,6 +33,7 @@ class excelscompanyController extends AppBaseController
     {
         
         $this->excelscompanyRepository = $excelscompanyRepo;
+
     }
 
     /**

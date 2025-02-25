@@ -17,8 +17,10 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Auth::routes();
+Route::group(['middleware' => 'web'], function () {
+    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
 Route::resource('users', App\Http\Controllers\UserController::class);
 Route::resource('companies', App\Http\Controllers\CompanyController::class);
 Route::resource('excelscompanies', App\Http\Controllers\excelscompanyController::class);
@@ -37,3 +39,5 @@ Route::resource('grupo_economicos', App\Http\Controllers\grupo_economicosControl
 Route::resource('grupo_economicos_empresas', App\Http\Controllers\grupo_economicos_empresasController::class);
 Route::resource('usuario_grupoeconomicos', App\Http\Controllers\usuario_grupoeconomicoController::class);
 Route::resource('bitacoras', App\Http\Controllers\bitacoraController::class);
+
+});

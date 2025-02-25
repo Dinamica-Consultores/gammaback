@@ -136,11 +136,16 @@ class UserController extends AppBaseController
         $dato['mensaje']=  $this->textMensaje($user->level_user);
         $dato['clave']=  $input['pass'];
         $dato['usuario']=  $user->email;
+        $dato['nombre']=  $user->name." ".$user->surname;
         $dato['max_var']=  '5';
         $dato['min_var']=  '-5';
         Mail::send(['html' => 'users.mensaje'], ['dato'=>$dato], function($message)use ($input) {
-            $message->to( $input['email'] ,'')->subject('GAMMA - Usuario Creado');
+            $message->to( $input['email'] ,'')->subject('Accede a Informe GAMMA Web desde su computadora');
             $message->from(env('MAIL_USERNAME') , env('MAIL_FROM_NAME'));
+            $path = base_path() . '/public/Post-GE-Mockk.jpg';
+            $message->attach($path , array(
+                'as' => "gamma.jpg")
+            );
         });
         return redirect(route('users.index'));
     }

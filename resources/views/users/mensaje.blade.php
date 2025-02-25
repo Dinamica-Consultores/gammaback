@@ -6,19 +6,38 @@
 
 </cabeza>
 
-<body class="mantener-transición barra lateral-mini diseño-fijo">
+<body class="mantener-transición barra lateral-mini diseño-fijo" style="text-align:center;">
     </br>
-    <p>Se ha creado un usuario nuevo para GAMMA nivel {{$dato['mensaje']}}</p>
+
+
+
+    <p>Estimado/a  {{$dato['nombre']}},</p>
 </br> 
-<p style="font-weigth:bold;">Utilice este link para Ingresar</p>
+<p >Con gran entusiasmo, le damos la bienvenida a Informe GAMMA Web.</p>
 </br>
-    <a href="{{$dato['href']}}" >Ir a la Web </a>
-    </br>
-   
-    <p style="font-weigth:bold;">Este es el correo para ingresar: {{$dato['usuario']}}</p>
-    </br>
-    <p style="font-weigth:bold;">Este es su contrasena nueva: {{$dato['clave']}} </p>
+<p >Nos llena de alegría compartir este nuevo avance contigo: ahora puede acceder a GAMMA de manera más fácil y conveniente desde su computadora, sin restricciones.</p>
 </br>
-    <p>¡Gracias por elegir GAMMA!</p>
+<p style="font-weight:bold;">👉 Para ingresar, utilice el siguiente enlace <a href="{{$dato['href']}}" >AQUÍ</a></p>
+    </br>
+    
+    <p ><label style="font-weight:bold;color:white;background-color:rgb(0,0,255);width:185px;">¿Qué le ofrece GAMMA Web?</label></p>
+    </br>
+    <p >✔️Acceso inmediato a tus estados de resultados y situación patrimonial, principales KPI y gráficos de tu empresa.</p>
+    </br>
+    <p >✔️Reportes automatizados adaptados a sus necesidades específicas.</p>
+    
+    </br>
+    <p >✔️Mejora en la accesibilidad, permitiéndole gestionar su información desde su computadora de manera sencilla y ágil.</p>
+    
+    </br>
+    <p >
+Sus datos siguen siendo los mismos. Si necesita ayuda, estamos a disposición.</p>
+    </br>
+    <p style="font-weight:bold;">¡Gracias por seguir confiando en nosotros!</p>
+</br>
+<p>Saludos,</p>
+
+    <p>
+    Equipo de Gestión Empresarial.</p>
 </cuerpo>
 </html>
