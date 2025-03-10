@@ -18,8 +18,14 @@
 <p >Nos llena de alegría compartir este nuevo avance contigo: ahora puede acceder a GAMMA de manera más fácil y conveniente desde su computadora, sin restricciones.</p>
 </br>
 <p style="font-weight:bold;">👉 Para ingresar, utilice el siguiente enlace <a href="{{$dato['href']}}" >AQUÍ</a></p>
+
     </br>
     
+    <p style="font-weight:bold;">Usuario: {{$dato['usuario']}}</p>
+    </br>
+    
+    <p style="font-weight:bold;">Contraseña: {{$dato['clave']}}</p>
+    </br>
     <p ><label style="font-weight:bold;color:white;background-color:rgb(0,0,255);width:185px;">¿Qué le ofrece GAMMA Web?</label></p>
     </br>
     <p >✔️Acceso inmediato a tus estados de resultados y situación patrimonial, principales KPI y gráficos de tu empresa.</p>
