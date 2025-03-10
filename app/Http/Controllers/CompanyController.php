@@ -29,7 +29,13 @@ class companyController extends AppBaseController
      */
     public function index(Request $request)
     {
-        $companies = company::SELECT('companies.*')->where('id_estudio', auth()->user()->getIdEstudios())->paginate(10);
+        $companies = company::SELECT('companies.*')->where('id_estudio', auth()->user()->getIdEstudios());
+        if(isset($_GET['query'])){
+            $companies=$companies->whereRaw('CONCAT(per_cont_name) Like ? OR razon_social Like ?',array('%'.$_GET['query'].'%','%'.$_GET['query'].'%'));
+           
+        }
+        $companies=$companies->paginate(10);
+        $companies->appends($request->all());
         return view('companies.index')
             ->with('companies', $companies);
     }

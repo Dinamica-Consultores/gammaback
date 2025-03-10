@@ -14,6 +14,12 @@
                     </a>
                 </div>
             </div>
+            <form action="{{ route('users.index') }}" method="GET" >
+                <label class="label-control">Buscar: </label>
+                <input type="text" name="query" class="form-control" placeholder="Nombre o apellido o email">
+            
+                <button type="submit" class="btn btn-success">buscar</button>
+        </form>
         </div>
     </section>
 

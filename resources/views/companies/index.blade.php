@@ -14,6 +14,11 @@
                     </a>
                 </div>
             </div>
+            <form action="{{ route('companies.index') }}" method="GET" >
+                <label class="label-control">Buscar:</label>
+                <input type="text" name="query" class="form-control" placeholder="Razon social o Nombre de la persona de contacto">
+                <button type="submit" class="btn btn-success">buscar</button>
+        </form>
         </div>
     </section>
 

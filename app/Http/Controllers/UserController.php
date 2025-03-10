@@ -30,6 +30,7 @@ class UserController extends AppBaseController
      */
     public function index(Request $request)
     {
+        
         if(auth()->user()->level_user==0){
             $users = User::Select('users.*');
             $users=$users->where('users.level_user','=',1);
@@ -58,7 +59,12 @@ class UserController extends AppBaseController
             $users=$users->where('estudios_usuarios.id_estudios','=',auth()->user()->getIdEstudios());   
             $users=$users->where('users.id','=',auth()->user()->id);       
         }
+        if(isset($_GET['query'])){
+            $users=$users->whereRaw('CONCAT(name," ",surname) Like ? OR email Like ?',array('%'.$_GET['query'].'%','%'.$_GET['query'].'%'));
+           
+        }
         $users= $users->paginate(10);
+        $users->appends($request->all());
         return view('users.index')
             ->with('users', $users);
     }

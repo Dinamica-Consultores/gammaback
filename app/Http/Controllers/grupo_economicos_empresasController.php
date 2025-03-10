@@ -31,7 +31,15 @@ class grupo_economicos_empresasController extends AppBaseController
     public function index(Request $request)
     {
         $grupoEconomicosEmpresas = grupo_economicos_empresas::SELECT(DB::raw('grupo_economicos.id,grupo_economicos.nombre,COUNT(grupo_economicos.id) as Cantidad'))->join('grupo_economicos','grupo_economicos.id','grupo_economicos_empresas.id_grupoeconomico')
-        ->where('grupo_economicos.id_estudio',auth()->user()->getIdEstudios())->groupByRaw('grupo_economicos.nombre,grupo_economicos.id')->paginate(10);
+        ->where('grupo_economicos.id_estudio',auth()->user()->getIdEstudios());
+       
+        if(isset($_GET['query'])){
+            $grupoEconomicosEmpresas=$grupoEconomicosEmpresas->whereRaw('CONCAT(grupo_economicos.nombre) Like ?',array('%'.$_GET['query'].'%'));
+           
+        }
+        $grupoEconomicosEmpresas=$grupoEconomicosEmpresas->groupByRaw('grupo_economicos.nombre,grupo_economicos.id');
+        $grupoEconomicosEmpresas= $grupoEconomicosEmpresas->paginate(10);
+        $grupoEconomicosEmpresas->appends($request->all());
         return view('grupo_economicos_empresas.index')
             ->with('grupoEconomicosEmpresas', $grupoEconomicosEmpresas);
     }

@@ -23,6 +23,7 @@ use App\Models\in_resultado;
 use App\Models\in_ventas;
 use App\Models\setup_analisis;
 use App\Models\tipo_cambio;
+use App\Models\controlcuentas;
 
 class excelscompanyController extends AppBaseController
 {
@@ -91,17 +92,12 @@ class excelscompanyController extends AppBaseController
             {
                 $RetornoSucursal=sucursales::insert($t);
             }
-/*
-            $DataSetup_ER=$this->dataReturnsetup_ER( $dataarray,$excelscompany->id);
-            $RetornoSetup_ER=setup_er::insert($DataSetup_ER);
-*/
             $DataCLASIFICACION_CUENTA_RESULTADOS=$this->dataReturnCLASIFICACION_CUENTA_RESULTADOS( $dataarray,$excelscompany->id);
          
             foreach (array_chunk($DataCLASIFICACION_CUENTA_RESULTADOS,1000) as $t)  
             {
                 $RetornoCLASIFICACION_CUENTA_RESULTADOS=clasificacion_cuenta_resul::insert($t);
             }
-
 
             $DataIN_RESULTADOS=$this->dataReturnIN_RESULTADOS($dataarray,$excelscompany->id);
             foreach (array_chunk($DataIN_RESULTADOS,1000) as $t)  
@@ -145,6 +141,27 @@ class excelscompanyController extends AppBaseController
                 $RetornoIN_BALANCE=in_balance::insert($t);
             }
      
+            $cuentasResultados = DB::select('SELECT DISTINCT in_resultados.cuenta_master as cuenta, "Resultado" as tipo,in_resultados.id_excel FROM in_resultados LEFT JOIN clasificacion_cuenta_resuls ON clasificacion_cuenta_resuls.cuenta=in_resultados.cuenta_master AND clasificacion_cuenta_resuls.id_excel= in_resultados.id_excel WHERE clasificacion_cuenta_resuls.cuenta is null  AND in_resultados.id_excel=  ?',[$excelscompany->id]);         
+            info( $this->valorCargaControlCuentas($cuentasResultados));
+            foreach (array_chunk($this->valorCargaControlCuentas($cuentasResultados),1000) as $t)  
+            {
+                $Retornocontrolcuentas=controlcuentas::insert($t);
+            }
+            $cuentasPresupuesto = DB::select('SELECT DISTINCT in_presupuestos.cuenta_master as cuenta, "Presupuesto" as tipo,in_presupuestos.id_excel FROM in_presupuestos LEFT JOIN clasificacion_cuenta_resuls ON clasificacion_cuenta_resuls.cuenta=in_presupuestos.cuenta_master AND clasificacion_cuenta_resuls.id_excel= in_presupuestos.id_excel WHERE clasificacion_cuenta_resuls.cuenta is null  AND in_presupuestos.id_excel=  ?',[$excelscompany->id]);
+            foreach (array_chunk($this->valorCargaControlCuentas($cuentasPresupuesto),1000) as $t)  
+            {
+                $Retornocontrolcuentas=controlcuentas::insert($t);
+            }
+            $cuentasBalances = DB::select('SELECT DISTINCT in_balances.cuenta_master as cuenta,"Balance" as tipo ,in_balances.id_excel FROM in_balances  LEFT JOIN categorizacion_cts_balances ON categorizacion_cts_balances.cuenta=in_balances.cuenta_master AND in_balances.id_excel=categorizacion_cts_balances.id_excel WHERE categorizacion_cts_balances.cuenta is null AND in_balances.id_excel = ?',[$excelscompany->id]);
+            foreach (array_chunk($this->valorCargaControlCuentas($cuentasBalances),1000) as $t)  
+            {
+                $Retornocontrolcuentas=controlcuentas::insert($t);
+            }
+            $cuentasVentas = DB::select('SELECT DISTINCT in_ventas.codigo_analisis as cuenta, "Ventas" as tipo  ,in_ventas.id_excel FROM in_ventas LEFt JOIN setup_analises ON setup_analises.id_excel=in_ventas.id_excel AND in_ventas.codigo_analisis=setup_analises.codigo WHERE setup_analises.codigo is null AND  in_ventas.id_excel = ?',[$excelscompany->id]);
+            foreach (array_chunk($this->valorCargaControlCuentas($cuentasVentas),1000) as $t)  
+            {
+                $Retornocontrolcuentas=controlcuentas::insert($t);
+            }
             Flash::success('Datos Agregado Correctamente');
             Storage::delete($path);
             return route('excelscompanies.index');
@@ -322,6 +339,18 @@ class excelscompanyController extends AppBaseController
         array_shift($dataRetorno);
         return $dataRetorno;
     }
+    public function valorCargaControlCuentas($dataarray){
+        $func = function($valor)  {
+            return [
+                'cuenta'=>$valor->cuenta,
+                'tipo'=>$valor->tipo,
+                'id_excel'=>$valor->id_excel
+            ];
+        };
+        $dataRetorno=array_map($func, $dataarray);
+        array_shift($dataRetorno);
+        return $dataRetorno;
+    }
     public function dataReturnIN_BALANCE($dataarray,$idExcelCompany){
         $func = function($valor) use ($idExcelCompany) {
             return [
@@ -338,7 +367,6 @@ class excelscompanyController extends AppBaseController
         return $dataRetorno;
     }
    
-
     /**
      * Store a newly created excelscompany in storage.
      */
@@ -409,6 +437,7 @@ class excelscompanyController extends AppBaseController
         $in_ventasDelete=in_ventas::where('id_excel',$idExcelCompany)->delete();
         $categorizacion_cts_balanceDelete=categorizacion_cts_balance::where('id_excel',$idExcelCompany)->delete();
         $in_balanceDelete=in_balance::where('id_excel',$idExcelCompany)->delete();
+        $controldecuentas=controlcuentas::where('id_excel',$idExcelCompany)->delete();
 
     }
     public function DeleteAllByIDCompany($idExcelCompany){
@@ -422,7 +451,7 @@ class excelscompanyController extends AppBaseController
         $categorizacion_cts_balanceDelete=categorizacion_cts_balance::join('excelscompanies','excelscompanies.id','categorizacion_cts_balances.id_excel')->where('excelscompanies.id_company',$idExcelCompany)->delete();
         $in_balanceDelete=in_balance::join('excelscompanies','excelscompanies.id','in_balances.id_excel')->where('excelscompanies.id_company',$idExcelCompany)->delete();
         $excelCompanye=excelscompany::where('id_company',$idExcelCompany)->delete();
-
+        $controldecuentas=controlcuentas::join('excelscompanies','excelscompanies.id','controlcuentas.id_excel')->where('excelscompanies.id_company',$idExcelCompany)->delete();
     }
     /**
      * Remove the specified excelscompany from storage.

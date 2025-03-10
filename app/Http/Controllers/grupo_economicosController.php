@@ -27,8 +27,13 @@ class grupo_economicosController extends AppBaseController
      */
     public function index(Request $request)
     {
-        $grupoEconomicos = grupo_economicos::where('id_estudio',auth()->user()->getIdEstudios())->paginate(10);
-
+        $grupoEconomicos = grupo_economicos::where('id_estudio',auth()->user()->getIdEstudios());
+        if(isset($_GET['query'])){
+            $grupoEconomicos=$grupoEconomicos->whereRaw('CONCAT(nombre) Like ?',array('%'.$_GET['query'].'%'));
+           
+        }
+        $grupoEconomicos= $grupoEconomicos->paginate(10);
+        $grupoEconomicos->appends($request->all());
         return view('grupo_economicos.index')
             ->with('grupoEconomicos', $grupoEconomicos);
     }

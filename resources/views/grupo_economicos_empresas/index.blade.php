@@ -14,6 +14,12 @@
                     </a>
                 </div>
             </div>
+            <form action="{{ route('grupo_economicos_empresas.index') }}" method="GET" >
+                <label class="label-control">Buscar:</label>
+                <input type="text" name="query" class="form-control" placeholder="Red Comercial">
+            
+                <button type="submit" class="btn btn-success">buscar</button>
+        </form>
         </div>
     </section>
 

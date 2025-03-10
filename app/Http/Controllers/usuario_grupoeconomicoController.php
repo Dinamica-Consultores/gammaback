@@ -30,8 +30,14 @@ class usuario_grupoeconomicoController extends AppBaseController
     public function index(Request $request)
     {
         $usuarioGrupoeconomicos = User::SELECT(DB::raw('users.id,users.email,COUNT(usuario_grupoeconomicos.id) as Cantidad'))->join('usuario_grupoeconomicos','usuario_grupoeconomicos.id_users','users.id')->join('grupo_economicos','grupo_economicos.id','usuario_grupoeconomicos.id_grupoeconomico')
-        ->where('grupo_economicos.id_estudio',auth()->user()->getIdEstudios())->groupByRaw('users.email,users.id')->paginate(10);
-
+        ->where('grupo_economicos.id_estudio',auth()->user()->getIdEstudios());
+        if(isset($_GET['query'])){
+            $usuarioGrupoeconomicos=$usuarioGrupoeconomicos->whereRaw('CONCAT(name," ",surname) Like ?',array('%'.$_GET['query'].'%'));
+           
+        }
+        $usuarioGrupoeconomicos= $usuarioGrupoeconomicos->groupByRaw('users.email,users.id');
+        $usuarioGrupoeconomicos= $usuarioGrupoeconomicos->paginate(10);
+        $usuarioGrupoeconomicos->appends($request->all());
         return view('usuario_grupoeconomicos.index')
             ->with('usuarioGrupoeconomicos', $usuarioGrupoeconomicos);
     }

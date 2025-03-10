@@ -39,5 +39,6 @@ Route::resource('grupo_economicos', App\Http\Controllers\grupo_economicosControl
 Route::resource('grupo_economicos_empresas', App\Http\Controllers\grupo_economicos_empresasController::class);
 Route::resource('usuario_grupoeconomicos', App\Http\Controllers\usuario_grupoeconomicoController::class);
 Route::resource('bitacoras', App\Http\Controllers\bitacoraController::class);
+Route::resource('controlcuentas', App\Http\Controllers\controlcuentasController::class);
 
 });

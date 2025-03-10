@@ -61,12 +61,21 @@ window.location.href = "{{route('login')}}"
                 <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
             </li>
         </ul>
+        @if(Auth::user()->getControlStudioCantidades()>0)
+<p class="text-align-center m-auto " style="font-size:20px;">
+        <span class="badge badge-danger badge-counter"> Revise su perfil y dirijase a control de cuentas</span>
+
+</p>
+
+        @endif
 
         <ul class="navbar-nav ml-auto">
             <li class="nav-item dropdown user-menu">
                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+                    <span class="badge badge-danger badge-counter"> {{Auth::user()->getControlStudioCantidades()}}</span>
                     <img src="{{asset('icono_GE.svg')}}"
                          class="user-image img-circle elevation-2" alt="User Image">
+                         
                     <span class="d-none d-md-inline">
 @if(isset(Auth::user()->name ))
                     {{ Auth::user()->name }}
@@ -86,7 +95,8 @@ window.location.href = "{{route('login')}}"
                     </li>
                     <!-- Menu Footer-->
                     <li class="user-footer">
-                        <a href="#" class="btn btn-default btn-flat">Profile</a>
+                        <a href="{{route('controlcuentas.index')}}" class="btn btn-default btn-flat">
+                    <span class="badge badge-danger badge-counter">{{Auth::user()->getControlStudioCantidades()}}</span> Control Cuentas</a>
                         <a href="#" class="btn btn-default btn-flat float-right"
                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                             Sign out

@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Auth;
 use App\Models\estudios_usuarios;
+use App\Models\controlcuentas;
 use App\Models\usuarios_empresas;
 class User extends Model implements AuthenticatableContract
 {
@@ -71,6 +72,12 @@ class User extends Model implements AuthenticatableContract
     {
         $userestudios = estudios_usuarios::WHERE('id_users',Auth::user()->id)->get();
         return count($userestudios)>0?$userestudios[0]->id_estudios:0;
+    }
+    public function getControlStudioCantidades()
+    {
+        $userestudios = estudios_usuarios::WHERE('id_users',Auth::user()->id)->get();
+        $cantidadEmpresasControl = controlcuentas::SELECT('controlcuentas.id_excel')->JOIN('excelscompanies','excelscompanies.id','=','controlcuentas.id_excel')->join('companies','companies.id','=','excelscompanies.id_company')->WHERE('companies.id_estudio',$userestudios[0]->id_estudios)->distinct()->get();
+        return count($cantidadEmpresasControl);
     }
     public function getIdEstudios2($id)
     {
