@@ -40,6 +40,10 @@ class UserController extends AppBaseController
                 $usuarioConcatenar=$usuarioConcatenar->join('estudios_usuarios','estudios_usuarios.id_users','users.id');
                 $usuarioConcatenar=$usuarioConcatenar->where('users.level_user','>',1);        
                 $usuarioConcatenar=$usuarioConcatenar->where('estudios_usuarios.id_estudios','=',auth()->user()->getIdEstudios());  
+                if(isset($_GET['query'])){
+                    $usuarioConcatenar=$usuarioConcatenar->whereRaw('CONCAT(name," ",surname) Like ? OR email Like ?',array('%'.$_GET['query'].'%','%'.$_GET['query'].'%'));
+                   
+                }
                 $users=$users->union($usuarioConcatenar);
             }
         }else if(auth()->user()->level_user==1){
@@ -60,7 +64,7 @@ class UserController extends AppBaseController
             $users=$users->where('users.id','=',auth()->user()->id);       
         }
         if(isset($_GET['query'])){
-            $users=$users ->where('name', 'like', '%' .strtoupper($_GET['query']) );
+            $users=$users->whereRaw('CONCAT(name," ",surname) Like ? OR email Like ?',array('%'.$_GET['query'].'%','%'.$_GET['query'].'%'));
            
         }
         $users= $users->paginate(10);
@@ -196,7 +200,7 @@ class UserController extends AppBaseController
     {
         $input = $request->all();
         $user = $this->userRepository->find($id);
-        
+
         if (empty($user)) {
             Flash::error('Usuario no encontrado');
 
@@ -207,7 +211,6 @@ class UserController extends AppBaseController
         }else{
             $input['password']=$user->password;
         }
-        
         $user = $this->userRepository->update($input, $id);
 
         Flash::success('Usuario Actualizado.');
