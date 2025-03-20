@@ -64,7 +64,7 @@ class UserController extends AppBaseController
            
         }
         $users= $users->paginate(10);
-        $users->appends($request->all());
+    
         return view('users.index')
             ->with('users', $users);
     }
