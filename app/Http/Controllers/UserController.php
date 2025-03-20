@@ -60,7 +60,7 @@ class UserController extends AppBaseController
             $users=$users->where('users.id','=',auth()->user()->id);       
         }
         if(isset($_GET['query'])){
-            $users=$users->whereRaw('CONCAT(name," ",surname) Like ? OR email Like ?',array('%'.$_GET['query'].'%','%'.$_GET['query'].'%'));
+            $users=$users->whereRaw('UPPER(CONCAT(name," ",surname)) Like ? OR UPPER(email) Like ?',array('%'.strtoupper($_GET['query']).'%','%'.strtoupper($_GET['query']).'%'));
            
         }
         $users= $users->paginate(10);
@@ -196,7 +196,7 @@ class UserController extends AppBaseController
     {
         $input = $request->all();
         $user = $this->userRepository->find($id);
-
+        
         if (empty($user)) {
             Flash::error('Usuario no encontrado');
 
@@ -207,6 +207,7 @@ class UserController extends AppBaseController
         }else{
             $input['password']=$user->password;
         }
+        
         $user = $this->userRepository->update($input, $id);
 
         Flash::success('Usuario Actualizado.');
