@@ -60,7 +60,7 @@ class UserController extends AppBaseController
             $users=$users->where('users.id','=',auth()->user()->id);       
         }
         if(isset($_GET['query'])){
-            $users=$users->whereRaw('UPPER(CONCAT(users.name," ",users.surname)) Like ? ',array('%'.strtoupper($_GET['query']).'%'));
+            $users=$users->whereRaw('users.name Like ? ',array('%'.strtoupper($_GET['query']).'%'));
            
         }
         $users= $users->paginate(10);
