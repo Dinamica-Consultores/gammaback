@@ -139,8 +139,8 @@ class UserController extends AppBaseController
             return back()->withInput();
         }
 
-        $data= DB::transaction(function () use ($request,$input) {
-            $user = $this->userRepository->create($input);
+        $user = $this->userRepository->create($input);
+        $data= DB::transaction(function () use ($request,$user) {
             if($user->id){
                 $valor=$this->InsertarInformacionUser($user->id,$user->level_user);
                 if(!$valor){
