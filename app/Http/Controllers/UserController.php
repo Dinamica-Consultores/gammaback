@@ -41,8 +41,7 @@ class UserController extends AppBaseController
                 $usuarioConcatenar=$usuarioConcatenar->where('users.level_user','>',1);        
                 $usuarioConcatenar=$usuarioConcatenar->where('estudios_usuarios.id_estudios','=',auth()->user()->getIdEstudios());  
                 if(isset($_GET['query'])){
-                    $usuarioConcatenar=$usuarioConcatenar->whereRaw('CONCAT(name," ",surname) Like ? OR email Like ?',array('%'.$_GET['query'].'%','%'.$_GET['query'].'%'));
-                   
+                    $usuarioConcatenar=$usuarioConcatenar->whereRaw('CONCAT(name," ",surname) Like ? OR email Like ?',array('%'.$_GET['query'].'%','%'.$_GET['query'].'%')); 
                 }
                 $users=$users->union($usuarioConcatenar);
             }
@@ -101,13 +100,15 @@ class UserController extends AppBaseController
      * Store a newly created User in storage.
      */
     public function InsertarInformacionUser($id_user,$level){
+        $paso=false;
         if($level>1){
             $getInf=estudios_usuarios::where('id_users',auth()->user()->id)->get();
             if(count($getInf)>0){
+                $paso=true;
                 estudios_usuarios::create(['id_users'=>$id_user,'id_estudios'=>$getInf[0]->id_estudios]);
             }
         }
-       
+       return  $paso;
     }
 
     public function textMensaje($level){
@@ -137,10 +138,18 @@ class UserController extends AppBaseController
             return back()->withInput();
         }
 
-        $user = $this->userRepository->create($input);
-        if($user->id){
-            $this->InsertarInformacionUser($user->id,$user->level_user);
-        }
+        $data= DB::transaction(function () use ($request,$input) {
+            $user = $this->userRepository->create($input);
+            if($user->id){
+                $valor=$this->InsertarInformacionUser($user->id,$user->level_user);
+                if(!$valor){
+                    Flash::error('No se pudo generar el usuario');
+                    return back()->withInput();
+                }
+            }
+
+        });
+      
         Flash::success('Usuario Generado.');
         $dato['href']=env('APP_URL_CHANGEPASS');
         $dato['mensaje']=  $this->textMensaje($user->level_user);
