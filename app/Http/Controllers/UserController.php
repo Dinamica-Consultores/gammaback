@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Http\Controllers\AppBaseController;
 use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\estudios_usuarios;
 use App\Models\usuario_grupoeconomico;
 use App\Models\User;
@@ -143,6 +144,7 @@ class UserController extends AppBaseController
             if($user->id){
                 $valor=$this->InsertarInformacionUser($user->id,$user->level_user);
                 if(!$valor){
+                    DB::rollBack();
                     Flash::error('No se pudo generar el usuario');
                     return back()->withInput();
                 }
