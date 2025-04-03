@@ -16,7 +16,7 @@
             </div>
             <form action="{{ route('usuario_grupoeconomicos.index') }}" method="GET" >
                 <label class="label-control">Buscar:</label>
-                <input type="text" name="query" class="form-control" placeholder="Correo del usuario">
+                <input type="text" name="query" class="form-control" placeholder="Nombre o Apellido del usuario">
             
                 <button type="submit" class="btn btn-success">buscar</button>
         </form>
