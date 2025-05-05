@@ -5,16 +5,14 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Bitacoras</h1>
+                    <h1>
+                    @lang('models/bitacora_enviosemails.singular') @lang('crud.detail')
+                    </h1>
                 </div>
                 <div class="col-sm-6">
-                    <a class="btn btn-primary float-right"
-                       href="{{ route('bitacoras.create2',$id) }}">
-                        Agregar nueva
-                    </a>
                     <a class="btn btn-default float-right"
-                       href="{{ route('grupo_economicos_empresas.index') }}">
-                                                    Atras
+                       href="{{ route('bitacora_enviosemails.index') }}">
+                                                    @lang('crud.back')
                                             </a>
                 </div>
             </div>
@@ -22,14 +20,12 @@
     </section>
 
     <div class="content px-3">
-
-        @include('flash::message')
-
-        <div class="clearfix"></div>
-
         <div class="card">
-            @include('bitacoras.table')
+            <div class="card-body">
+                <div class="row">
+                    @include('bitacora_enviosemails.show_fields')
+                </div>
+            </div>
         </div>
     </div>
-
 @endsection

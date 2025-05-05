@@ -16,13 +16,18 @@
                     <td>{{ $bitacora->grupoeconomicos->nombre }}</td>
                     <td>{{ $bitacora->persona_agrega }}</td>
                     <td  style="width: 120px">
-                        {!! Form::open(['route' => ['bitacoras.destroy', $bitacora->id], 'method' => 'delete']) !!}
+                        {!! Form::open(['route' => ['bitacoras.destroy', [$id,$bitacora->id]], 'method' => 'delete']) !!}
                         <div class='btn-group'>
-                            <a href="{{ route('bitacoras.show', [$bitacora->id]) }}"
+                            <a href="{{ route('bitacoras.show', [$id,$bitacora->id]) }}"
                                class='btn btn-default btn-xs'>
                                 <i class="far fa-eye"></i>
                             </a>
-                            <a href="{{ route('bitacoras.edit', [$bitacora->id]) }}"
+                            <a href="{{ route('bitacoras.EnviosEmail', [$id,$bitacora->id]) }}"
+                               class='btn btn-default btn-xs'>
+                                <i class="fa fa-envelope"></i>
+                            </a>
+                            
+                            <a href="{{ route('bitacoras.edit', [$id,$bitacora->id]) }}"
                                class='btn btn-default btn-xs'>
                                 <i class="far fa-edit"></i>
                             </a>

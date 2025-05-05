@@ -133,3 +133,9 @@ Route::resource('grupo_economicos', App\Http\Controllers\API\grupo_economicosAPI
 
 Route::resource('usuario_grupoeconomicos', App\Http\Controllers\API\usuario_grupoeconomicoAPIController::class)
     ->except(['create', 'edit']);
+
+Route::resource('bitacora_hitos', App\Http\Controllers\API\bitacora_hitosAPIController::class)
+    ->except(['create', 'edit']);
+
+Route::resource('bitacora_enviosemails', App\Http\Controllers\API\bitacora_enviosemailAPIController::class)
+    ->except(['create', 'edit']);

@@ -6,7 +6,7 @@
             <div class="row mb-2">
                 <div class="col-sm-12">
                     <h1>
-                    Create Bitacoras
+                    Create Bitacora Enviosemails
                     </h1>
                 </div>
             </div>
@@ -19,19 +19,19 @@
 
         <div class="card">
 
-            {!! Form::open(['route' => ['bitacoras.store', $id2]]) !!}
+            {!! Form::open(['route' => ['bitacora_enviosemails.store',[$id,$id2]]]) !!}
 
             <div class="card-body">
 
                 <div class="row">
-                    @include('bitacoras.fields')
+                    @include('bitacora_enviosemails.fields')
                 </div>
 
             </div>
 
             <div class="card-footer">
-                {!! Form::submit('Guardar', ['class' => 'btn btn-primary']) !!}
-                <a href="{{ route('bitacoras.index2',$id2) }}" class="btn btn-default"> Cancel </a>
+                {!! Form::submit('Save', ['class' => 'btn btn-primary']) !!}
+                <a href="{{ route('bitacoras.show', [$id,$id2])}}" class="btn btn-default"> Cancel </a>
             </div>
 
             {!! Form::close() !!}

@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
 use Illuminate\Http\Request;
 use App\Models\User;
+
+use App\Models\bitacora_enviosemail;
 use Flash;
 
 class usuario_grupoeconomicoController extends AppBaseController
@@ -153,6 +155,11 @@ class usuario_grupoeconomicoController extends AppBaseController
         usuario_grupoeconomico::where('id_users',$id)->delete();
         $data=usuario_grupoeconomico::insert( $info->toArray());
 
+        bitacora_enviosemail::join('bitacoras','bitacoras.id','bitacora_enviosemails.id_bitacora')  ->leftjoin('usuario_grupoeconomicos', function($joins)
+        {
+            $joins->on('usuario_grupoeconomicos.id_users','=','bitacora_enviosemails.id_user')
+            ->on('usuario_grupoeconomicos.id_grupoeconomico','=','bitacoras.id_grupoeconomico');
+        })-> where('bitacora_enviosemails.id_user',$id)->delete();
         Flash::success('Usuario y Red Comercial Actualizado');
 
         return redirect(route('usuario_grupoeconomicos.index'));
@@ -167,6 +174,11 @@ class usuario_grupoeconomicoController extends AppBaseController
     {
       
         usuario_grupoeconomico::where('id_users',$id)->delete();
+        bitacora_enviosemail::join('bitacoras','bitacoras.id','bitacora_enviosemails.id_bitacora')  ->leftjoin('usuario_grupoeconomicos', function($joins)
+        {
+            $joins->on('usuario_grupoeconomicos.id_users','=','bitacora_enviosemails.id_user')
+            ->on('usuario_grupoeconomicos.id_grupoeconomico','=','bitacoras.id_grupoeconomico');
+        })-> where('bitacora_enviosemails.id_user',$id)->delete();
         Flash::success('Usuario y Red Comercial Eliminado.');
 
         return redirect(route('usuario_grupoeconomicos.index'));

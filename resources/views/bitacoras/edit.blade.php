@@ -19,7 +19,7 @@
 
         <div class="card">
 
-            {!! Form::model($bitacora, ['route' => ['bitacoras.update', $bitacora->id], 'method' => 'patch']) !!}
+            {!! Form::model($bitacora, ['route' => ['bitacoras.update', $id2,$bitacora->id], 'method' => 'patch']) !!}
 
             <div class="card-body">
                 <div class="row">
@@ -29,7 +29,7 @@
 
             <div class="card-footer">
                 {!! Form::submit('Guardar', ['class' => 'btn btn-primary']) !!}
-                <a href="{{ route('bitacoras.index') }}" class="btn btn-default"> Cancel </a>
+                <a href="{{ route('bitacoras.index2',$id2) }}" class="btn btn-default"> Cancel </a>
             </div>
 
             {!! Form::close() !!}

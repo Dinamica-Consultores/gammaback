@@ -39,6 +39,28 @@ Route::resource('grupo_economicos', App\Http\Controllers\grupo_economicosControl
 Route::resource('grupo_economicos_empresas', App\Http\Controllers\grupo_economicos_empresasController::class);
 Route::resource('usuario_grupoeconomicos', App\Http\Controllers\usuario_grupoeconomicoController::class);
 Route::resource('bitacoras', App\Http\Controllers\bitacoraController::class);
+Route::get('/bitacoras/{id}/grupo', [ App\Http\Controllers\bitacoraController::class, 'index2'])->name('bitacoras.index2');
+Route::get('/bitacoras/{id}/EnviosEmail/{id2}', [ App\Http\Controllers\bitacoraController::class, 'EnviosEmail'])->name('bitacoras.EnviosEmail');
+
+Route::get('/bitacoras/{id}/grupo/create', [ App\Http\Controllers\bitacoraController::class, 'create2'])->name('bitacoras.create2');
+Route::post('/bitacoras/{id}/grupo/store', [ App\Http\Controllers\bitacoraController::class, 'store'])->name('bitacoras.store');
+Route::get('/bitacoras/{id}/grupo/{id2}/edit', [ App\Http\Controllers\bitacoraController::class, 'edit'])->name('bitacoras.edit');
+Route::patch('/bitacoras/{id}/grupo/{id2}/update', [ App\Http\Controllers\bitacoraController::class, 'update'])->name('bitacoras.update');
+Route::get('/bitacoras/{id}/grupo/{id2}/show', [ App\Http\Controllers\bitacoraController::class, 'show'])->name('bitacoras.show');
+Route::delete('/bitacoras/{id}/grupo/{id2}/delete', [ App\Http\Controllers\bitacoraController::class, 'destroy'])->name('bitacoras.destroy');
+
 Route::resource('controlcuentas', App\Http\Controllers\controlcuentasController::class);
+Route::resource('bitacora_hitos', App\Http\Controllers\bitacora_hitosController::class);
+Route::get('/bitacoras/{id}/grupo/{id2}/crearhito', [ App\Http\Controllers\bitacora_hitosController::class, 'create2'])->name('bitacora_hitos.create2');
+Route::get('/bitacoras/{id}/grupo/{id2}/edithito/{id3}', [ App\Http\Controllers\bitacora_hitosController::class, 'edit'])->name('bitacora_hitos.edit');
+Route::patch('/bitacoras/{id}/grupo/{id2}/savehito/{id3}', [ App\Http\Controllers\bitacora_hitosController::class, 'update'])->name('bitacora_hitos.update');
+Route::post('/bitacoras/{id}/grupo/{id2}/storehito', [ App\Http\Controllers\bitacora_hitosController::class, 'store'])->name('bitacora_hitos.store');
+Route::get('/bitacoras/{id}/grupo/{id2}/showhito/{id3}', [ App\Http\Controllers\bitacora_hitosController::class, 'show'])->name('bitacora_hitos.show');
+Route::delete('/bitacoras/{id}/grupo/{id2}/delete/{id3}', [ App\Http\Controllers\bitacora_hitosController::class, 'destroy'])->name('bitacora_hitos.destroy');
+
+
+Route::resource('bitacora_enviosemails', App\Http\Controllers\bitacora_enviosemailController::class);
+Route::get('/bitacoras/{id}/grupo/{id2}/usuarioshito', [ App\Http\Controllers\bitacora_enviosemailController::class, 'create'])->name('bitacora_enviosemails.create');
+Route::post('/bitacoras/{id}/grupo/{id2}/usuarioshitosave', [ App\Http\Controllers\bitacora_enviosemailController::class, 'store'])->name('bitacora_enviosemails.store');
 
 });

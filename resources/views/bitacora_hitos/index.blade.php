@@ -5,17 +5,13 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Bitacoras</h1>
+                    <h1>Bitacora Hitos</h1>
                 </div>
                 <div class="col-sm-6">
                     <a class="btn btn-primary float-right"
-                       href="{{ route('bitacoras.create2',$id) }}">
-                        Agregar nueva
+                       href="{{ route('bitacora_hitos.create') }}">
+                        Add New
                     </a>
-                    <a class="btn btn-default float-right"
-                       href="{{ route('grupo_economicos_empresas.index') }}">
-                                                    Atras
-                                            </a>
                 </div>
             </div>
         </div>
@@ -28,7 +24,7 @@
         <div class="clearfix"></div>
 
         <div class="card">
-            @include('bitacoras.table')
+            @include('bitacora_hitos.table')
         </div>
     </div>
 

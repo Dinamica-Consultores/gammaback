@@ -25,7 +25,6 @@ class bitacora extends Model
 
     public static array $rules = [
         'descripcion' => 'required',
-        'id_grupoeconomico' => 'required',
         'persona_agrega' => 'required'
     ];
 

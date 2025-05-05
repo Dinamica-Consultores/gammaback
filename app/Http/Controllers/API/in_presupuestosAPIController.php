@@ -283,6 +283,8 @@ class in_presupuestosAPIController extends AppBaseController
         clasificacion_cuenta_resuls.origen,
         clasificacion_cuenta_resuls.grupo,
         clasificacion_cuenta_resuls.nivel_1,
+        clasificacion_cuenta_resuls.nivel_2,
+        clasificacion_cuenta_resuls.nivel_3,
         clasificacion_cuenta_resuls.clasificacion_ebit_ebitda,
         clasificacion_cuenta_resuls.clasificacion_er,
         in_presupuestos.ano,
