@@ -6,7 +6,7 @@
             <div class="row mb-2">
                 <div class="col-sm-6">
                     <h1>
-                    @lang('models/grupo_economicos.singular') @lang('crud.detail')
+             Red Comercial
                     </h1>
                 </div>
                 <div class="col-sm-6">
