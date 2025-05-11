@@ -349,8 +349,8 @@ class in_presupuestosAPIController extends AppBaseController
                 $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
                 $sqlCheck2=$sqlCheck2->where('sucursales.id',$sucursal);
             }
-            $sqlCheck = $sqlCheck->orderByRaw('DATE(CONCAT (in_presupuestos.ano,"-",in_presupuestos.mes,"-","1")) ASC');
-            $sqlCheck2 = $sqlCheck2->orderByRaw('DATE(CONCAT (in_presupuestos.ano,"-",in_presupuestos.mes,"-","1")) ASC');
+            $sqlCheck = $sqlCheck->orderByRaw('DATE(CONCAT (in_presupuestos.ano,"-",in_presupuestos.mes,"-","1")),clasificacion_cuenta_resuls.id ASC');
+            $sqlCheck2 = $sqlCheck2->orderByRaw('DATE(CONCAT (in_presupuestos.ano,"-",in_presupuestos.mes,"-","1")),clasificacion_cuenta_resuls.id ASC');
             $yearbusqueda="";
             $yearbusqueda2="";
             $monthsbusqueda=$monthfiscal;
@@ -460,6 +460,8 @@ class in_presupuestosAPIController extends AppBaseController
         clasificacion_cuenta_resuls.clasificacion_er,
         clasificacion_cuenta_resuls.clasificacion_ebit_ebitda,
         clasificacion_cuenta_resuls.nivel_1,
+        clasificacion_cuenta_resuls.nivel_2,
+        clasificacion_cuenta_resuls.nivel_3,
         in_presupuestos.ano,
         in_presupuestos.mes'))
         ->join('excelscompanies','excelscompanies.id','in_presupuestos.id_excel')
@@ -488,7 +490,7 @@ class in_presupuestosAPIController extends AppBaseController
             });
             $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
         }
-        $sqlCheck= $sqlCheck->orderByRaw('DATE(CONCAT (in_presupuestos.ano,"-",in_presupuestos.mes,"-","1")) ASC');
+        $sqlCheck= $sqlCheck->orderByRaw('DATE(CONCAT (in_presupuestos.ano,"-",in_presupuestos.mes,"-","1")),clasificacion_cuenta_resuls.id ASC');
         if($year>0 && $month>0){
             $dateStart=$year.'-'.$month.'-01';
             $effectiveDate = strtotime("-11 months", strtotime($dateStart)); // returns timestamp

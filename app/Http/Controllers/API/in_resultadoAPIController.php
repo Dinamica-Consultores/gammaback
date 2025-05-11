@@ -551,6 +551,8 @@ class in_resultadoAPIController extends AppBaseController
         clasificacion_cuenta_resuls.origen,
         clasificacion_cuenta_resuls.grupo,
         clasificacion_cuenta_resuls.nivel_1,
+        clasificacion_cuenta_resuls.nivel_2,
+        clasificacion_cuenta_resuls.nivel_3,
         clasificacion_cuenta_resuls.clasificacion_er,
         clasificacion_cuenta_resuls.clasificacion_ebit_ebitda,
         in_resultados.ano,
@@ -585,12 +587,14 @@ class in_resultadoAPIController extends AppBaseController
             });
             $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
         }
-        
+       $sqlCheck= $sqlCheck->orderByRaw('clasificacion_cuenta_resuls.id ASC');
         $sqlCheck = $sqlCheck->groupByRaw('
         clasificacion_cuenta_resuls.nombre,
         clasificacion_cuenta_resuls.origen,
         clasificacion_cuenta_resuls.grupo,
         clasificacion_cuenta_resuls.nivel_1,
+        clasificacion_cuenta_resuls.nivel_2,
+        clasificacion_cuenta_resuls.nivel_3,
         clasificacion_cuenta_resuls.clasificacion_er,
         clasificacion_cuenta_resuls.clasificacion_ebit_ebitda,
         in_resultados.ano,
@@ -750,8 +754,8 @@ class in_resultadoAPIController extends AppBaseController
                 $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
                 $sqlCheck2=$sqlCheck2->where('sucursales.id',$sucursal);
             }
-            $sqlCheck = $sqlCheck->orderByRaw('DATE(CONCAT (in_resultados.ano,"-",in_resultados.mes,"-","1")) ASC');
-            $sqlCheck2 = $sqlCheck2->orderByRaw('DATE(CONCAT (in_resultados.ano,"-",in_resultados.mes,"-","1")) ASC');
+            $sqlCheck = $sqlCheck->orderByRaw('DATE(CONCAT (in_resultados.ano,"-",in_resultados.mes,"-","1")),clasificacion_cuenta_resuls.id ASC');
+            $sqlCheck2 = $sqlCheck2->orderByRaw('DATE(CONCAT (in_resultados.ano,"-",in_resultados.mes,"-","1")),clasificacion_cuenta_resuls.id ASC');
             $yearbusqueda="";
             $yearbusqueda2="";
             $monthsbusqueda=$monthfiscal;
@@ -928,6 +932,8 @@ class in_resultadoAPIController extends AppBaseController
         clasificacion_cuenta_resuls.clasificacion_er,
         clasificacion_cuenta_resuls.clasificacion_ebit_ebitda,
         clasificacion_cuenta_resuls.nivel_1,
+        clasificacion_cuenta_resuls.nivel_2,
+        clasificacion_cuenta_resuls.nivel_3,
         in_resultados.ano,
         in_resultados.mes'))
             ->join('excelscompanies', 'excelscompanies.id', 'in_resultados.id_excel')
@@ -960,7 +966,7 @@ class in_resultadoAPIController extends AppBaseController
             });
             $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
         }
-        $sqlCheck = $sqlCheck->orderByRaw('DATE(CONCAT (in_resultados.ano,"-",in_resultados.mes,"-","1")) ASC');
+        $sqlCheck = $sqlCheck->orderByRaw('DATE(CONCAT (in_resultados.ano,"-",in_resultados.mes,"-","1")),clasificacion_cuenta_resuls.id ASC');
         if ($year > 0 && $month > 0) {
             $dateStart = $year . '-' . $month . '-01';
             $effectiveDate = strtotime("-11 months", strtotime($dateStart)); // returns timestamp
@@ -995,6 +1001,8 @@ class in_resultadoAPIController extends AppBaseController
         clasificacion_cuenta_resuls.origen,
         clasificacion_cuenta_resuls.grupo,
         clasificacion_cuenta_resuls.nivel_1,
+        clasificacion_cuenta_resuls.nivel_2,
+        clasificacion_cuenta_resuls.nivel_3,
         clasificacion_cuenta_resuls.clasificacion_punto_equilibrio,
         in_resultados.ano,
         in_resultados.mes'))
@@ -1027,7 +1035,7 @@ class in_resultadoAPIController extends AppBaseController
             });
             $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
         }
-        $sqlCheck = $sqlCheck->orderByRaw('DATE(CONCAT (in_resultados.ano,"-",in_resultados.mes,"-","1")) ASC');
+        $sqlCheck = $sqlCheck->orderByRaw('DATE(CONCAT (in_resultados.ano,"-",in_resultados.mes,"-","1")),clasificacion_cuenta_resuls.id ASC');
         if ($year > 0 && $month > 0) {
             $dateStart = $year . '-' . $month . '-01';
             $effectiveDate = strtotime("-11 months", strtotime($dateStart)); // returns timestamp

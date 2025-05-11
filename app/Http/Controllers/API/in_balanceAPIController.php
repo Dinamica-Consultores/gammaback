@@ -110,7 +110,7 @@ class in_balanceAPIController extends AppBaseController
         (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
         (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
         categorizacion_cts_balances.nivel_3,
-              categorizacion_cts_balances.nivel_4,
+        categorizacion_cts_balances.nivel_4,
         categorizacion_cts_balances.nombre,
         categorizacion_cts_balances.nivel_2,
         categorizacion_cts_balances.nivel_1,
@@ -203,6 +203,10 @@ class in_balanceAPIController extends AppBaseController
             $sqlCheck2=$sqlCheck2->where('sucursales.id',$sucursal);
             $sqlCheck3=$sqlCheck3->where('sucursales.id',$sucursal);
         }
+        
+        $sqlCheck = $sqlCheck->orderByRaw('categorizacion_cts_balances.id ASC');
+        $sqlCheck2 = $sqlCheck2->orderByRaw('categorizacion_cts_balances.id ASC');
+        $sqlCheck3 = $sqlCheck3->orderByRaw('categorizacion_cts_balances.id ASC');
         if($year>0 && $month>0){
             $sqlCheck= $sqlCheck->where('in_balances.mes',$month);
             $sqlCheck2= $sqlCheck2->where('in_balances.mes',$month);
