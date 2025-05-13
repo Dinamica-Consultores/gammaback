@@ -599,6 +599,7 @@ class in_resultadoAPIController extends AppBaseController
         clasificacion_cuenta_resuls.clasificacion_ebit_ebitda,
         in_resultados.ano,
         tipo_cambios.ipc,
+        clasificacion_cuenta_resuls.id,
         in_resultados.mes');
         if ($year > 0) {
             $sqlCheck = $sqlCheck->where('in_resultados.ano','<=', $year+1);
