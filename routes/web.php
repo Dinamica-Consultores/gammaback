@@ -64,3 +64,4 @@ Route::get('/bitacoras/{id}/grupo/{id2}/usuarioshito', [ App\Http\Controllers\bi
 Route::post('/bitacoras/{id}/grupo/{id2}/usuarioshitosave', [ App\Http\Controllers\bitacora_enviosemailController::class, 'store'])->name('bitacora_enviosemails.store');
 
 });
+Route::resource('sessiones', App\Http\Controllers\sessionesController::class);

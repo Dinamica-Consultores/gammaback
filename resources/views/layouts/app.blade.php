@@ -50,7 +50,7 @@
 <script>
 window.location.href = "{{route('login')}}"
 </script>
-@endif
+@else
 <body class="hold-transition sidebar-mini layout-fixed dark-mode" data-bs-theme="dark">
 <div class="wrapper" >
     <!-- Main Header -->
@@ -126,6 +126,8 @@ window.location.href = "{{route('login')}}"
         <strong>Copyright &copy; 2024 Gamma Gestion Empresarial.</strong> 
     </footer>
 </div>
+
+@endif
 <!-- AdminLTE App -->
 <!--script src="dist/js/adminlte.js"></script-->
 <script src="{{ mix('js/app.js') }}"></script>

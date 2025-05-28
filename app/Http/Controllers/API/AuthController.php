@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\company;
 use App\Models\sucursales;
 use App\Models\usuario_grupoeconomico;
+use App\Models\sessiones;
+use App\Models\grupo_economicos;
+use Carbon\Carbon;
 use Mail;
 use Illuminate\Support\Str;
 
@@ -37,6 +40,11 @@ class AuthController extends Controller
                         'errors' => 'No show',
                     ], 422);
                 }else{  
+                    sessiones::insert([
+                        'user_id' => $user->id,
+                        'opcion' => 'Login',
+                        'created_at'=>Carbon::now()
+                    ]);
                     $accessToken = $user->createToken('GammaBack')->accessToken;
                     $token_detail = $user->createToken('GammaBack');
                     return response()->json([
@@ -124,9 +132,14 @@ class AuthController extends Controller
             $user->tokens->each(function ($token, $key) {
                 $token->delete();
             });
-
+            sessiones::insert([
+                'user_id' => $user->id,
+                'opcion' => 'Logout',
+                'created_at'=>Carbon::now()
+            ]);
             return response()->json(['message' => 'Successfully logged out']);
         } catch (\Exception $e) {
+            info($e);
             // Handle other exceptions
             return response()->json([
                 'message' => 'Logout failed due to an unexpected error.',
@@ -140,7 +153,22 @@ class AuthController extends Controller
         try {
             $input=$request->all();
             $user =auth()->guard('api')->user();
-            $data=User::where('id',$user->id)->update($input );
+            if(isset($user->id_group_show)){
+                if(isset($input['id_group_show'])){
+                    if((int)$user->id_group_show===(int)$input['id_group_show']){
+                    }else{
+                        $nombreGrupoEconomico=grupo_economicos::find($input['id_group_show']);
+                        sessiones::insert([
+                            'user_id' => $user->id,
+                            'opcion' => 'Cambio de Grupo Economico '.$nombreGrupoEconomico->nombre,
+                            'created_at'=>Carbon::now()
+                        ]);
+                        
+                    }
+                }
+             
+            }
+            $data=User::where('id',$user->id)->update($input);
             $user =User::find($user->id);
             $todas='Todas';
             $datasucursales=sucursales::SELECT('sucursales.*')
@@ -150,11 +178,18 @@ class AuthController extends Controller
             $datasucursales= $datasucursales->join('usuario_grupoeconomicos','usuario_grupoeconomicos.id_grupoeconomico','grupo_economicos_empresas.id_grupoeconomico');
             $datasucursales= $datasucursales->where('grupo_economicos_empresas.id_grupoeconomico',$user->id_group_show);
             $datasucursales= $datasucursales->where('usuario_grupoeconomicos.id_users',$user->id);
+            
             if($user->id_company_show>0){
                 $datasucursales= $datasucursales->where('grupo_economicos_empresas.id_company',$user->id_company_show);
                 $dataEmpresa=company::find($user->id_company_show);
                 $todas=$dataEmpresa->razon_social;
                 $dataEmpresa['logo']=asset('storage/' . $dataEmpresa['logo']);
+                sessiones::insert([
+                    'user_id' => $user->id,
+                    'opcion' => 'Cambio de compañias '.$dataEmpresa->nombre,
+                    'created_at'=>Carbon::now()
+                ]);
+                
             }else{ 
                 $cantidadCompanies=company::SELECT('companies.*')->
                 join('grupo_economicos_empresas','grupo_economicos_empresas.id_company','companies.id')->
@@ -169,7 +204,13 @@ class AuthController extends Controller
                 ->where('usuario_grupoeconomicos.id_grupoeconomico',$user->id_group_show)
                 ->first();
                 if($cantidadCompanies==1){
+                  
                     $todas=$dataEmpresa->razon_social;
+                    sessiones::insert([
+                        'user_id' => $user->id,
+                        'opcion' => 'Cambio de compañias '.$dataEmpresa->razon_social,
+                        'created_at'=>Carbon::now()
+                    ]);
                 $dataEmpresa['logo']=asset('storage/' . $dataEmpresa['logo']);
                 }else if($cantidadCompanies==0){
                     return response()->json([
@@ -177,6 +218,11 @@ class AuthController extends Controller
                         'error' => $e->getMessage(),
                     ], 500);
                 }else{
+                    sessiones::insert([
+                        'user_id' => $user->id,
+                        'opcion' => 'Cambio de compañias Todas',
+                        'created_at'=>Carbon::now()
+                    ]);
                 $dataEmpresa['logo']='';
                 }
                 

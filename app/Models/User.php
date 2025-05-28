@@ -75,9 +75,13 @@ class User extends Model implements AuthenticatableContract
     }
     public function getControlStudioCantidades()
     {
-        $userestudios = estudios_usuarios::WHERE('id_users',Auth::user()->id)->get();
-        $cantidadEmpresasControl = controlcuentas::SELECT('controlcuentas.id_excel')->JOIN('excelscompanies','excelscompanies.id','=','controlcuentas.id_excel')->join('companies','companies.id','=','excelscompanies.id_company')->WHERE('companies.id_estudio',$userestudios[0]->id_estudios)->distinct()->get();
-        return count($cantidadEmpresasControl);
+        if(isset(Auth::user()->id)){
+            $userestudios = estudios_usuarios::WHERE('id_users',Auth::user()->id)->get();
+            $cantidadEmpresasControl = controlcuentas::SELECT('controlcuentas.id_excel')->JOIN('excelscompanies','excelscompanies.id','=','controlcuentas.id_excel')->join('companies','companies.id','=','excelscompanies.id_company')->WHERE('companies.id_estudio',$userestudios[0]->id_estudios)->distinct()->get();
+           
+            return count($cantidadEmpresasControl);
+        }
+        return 0;
     }
     public function getIdEstudios2($id)
     {
