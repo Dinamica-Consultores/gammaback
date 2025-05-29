@@ -63,5 +63,8 @@ Route::resource('bitacora_enviosemails', App\Http\Controllers\bitacora_enviosema
 Route::get('/bitacoras/{id}/grupo/{id2}/usuarioshito', [ App\Http\Controllers\bitacora_enviosemailController::class, 'create'])->name('bitacora_enviosemails.create');
 Route::post('/bitacoras/{id}/grupo/{id2}/usuarioshitosave', [ App\Http\Controllers\bitacora_enviosemailController::class, 'store'])->name('bitacora_enviosemails.store');
 
-});
 Route::resource('sessiones', App\Http\Controllers\sessionesController::class);
+Route::post('/tipo_cambios_globals/uploadfile', [ App\Http\Controllers\tipo_cambios_globalController::class, 'uploadfile'])->name('tipo_cambios_global.uploadfile');
+
+Route::resource('tipo_cambios_globals', App\Http\Controllers\tipo_cambios_globalController::class);
+});

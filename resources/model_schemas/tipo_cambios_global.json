@@ -12,10 +12,10 @@
         "inView": false
     },
     {
-        "name": "fecha",
-        "dbType": "datetime",
-        "htmlType": "date",
-        "validations": "required",
+        "name": "id_estudio",
+        "dbType": "foreignId",
+        "htmlType": "select",
+        "validations": "required|exists:estudios,id",
         "searchable": true,
         "fillable": true,
         "primary": false,
@@ -60,10 +60,10 @@
         "inView": true
     },
     {
-        "name": "id_company",
-        "dbType": "integer",
-        "htmlType": "select",
-        "validations": "required|exists:company,id",
+        "name": "euro_promedio",
+        "dbType": "string",
+        "htmlType": "text",
+        "validations": "required",
         "searchable": true,
         "fillable": true,
         "primary": false,
@@ -72,10 +72,46 @@
         "inView": true
     },
     {
-        "name": "id_excel",
-        "dbType": "integer",
-        "htmlType": "select",
-        "validations": "required|exists:excelscompany,id",
+        "name": "francosuizo_promedio",
+        "dbType": "string",
+        "htmlType": "text",
+        "validations": "required",
+        "searchable": true,
+        "fillable": true,
+        "primary": false,
+        "inForm": true,
+        "inIndex": true,
+        "inView": true
+    },
+    {
+        "name": "ui",
+        "dbType": "string",
+        "htmlType": "text",
+        "validations": "required",
+        "searchable": true,
+        "fillable": true,
+        "primary": false,
+        "inForm": true,
+        "inIndex": true,
+        "inView": true
+    },
+    {
+        "name": "ipc",
+        "dbType": "string",
+        "htmlType": "text",
+        "validations": "required",
+        "searchable": true,
+        "fillable": true,
+        "primary": false,
+        "inForm": true,
+        "inIndex": true,
+        "inView": true
+    },
+    {
+        "name": "fecha",
+        "dbType": "datetime",
+        "htmlType": "date",
+        "validations": "required",
         "searchable": true,
         "fillable": true,
         "primary": false,
@@ -93,7 +129,7 @@
         "primary": false,
         "inForm": false,
         "inIndex": false,
-        "inView": false
+        "inView": true
     },
     {
         "name": "updated_at",
@@ -105,6 +141,10 @@
         "primary": false,
         "inForm": false,
         "inIndex": false,
-        "inView": false
+        "inView": true
+    },
+    {
+        "type": "relation",
+        "relation": "mt1,estudios,id_estudio,id,cascade"
     }
 ]

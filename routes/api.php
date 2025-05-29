@@ -139,3 +139,6 @@ Route::resource('bitacora_hitos', App\Http\Controllers\API\bitacora_hitosAPICont
 
 Route::resource('bitacora_enviosemails', App\Http\Controllers\API\bitacora_enviosemailAPIController::class)
     ->except(['create', 'edit']);
+
+Route::resource('tipo_cambios_globals', App\Http\Controllers\API\tipo_cambios_globalAPIController::class)
+    ->except(['create', 'edit']);

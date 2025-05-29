@@ -12,6 +12,13 @@
         <p>Usuarios </p>
     </a>
 </li>
+
+<li class="nav-item">
+    <a href="{{ route('tipo_cambios_globals.index') }}" class="nav-link {{ Request::is('tipo_cambios_globals*') ? 'active' : '' }}">
+        <i class="nav-icon fas fa-dollar-sign"></i>
+        <p>Tipo Cambios Globales</p>
+    </a>
+</li>
 @if(Auth::user()->getContainestudios())
 <li class="nav-item">
     <a href="{{ route('companies.index') }}" class="nav-link {{ Request::is('companies*') ? 'active' : '' }}">
@@ -46,7 +53,7 @@
 
 
         <li class="nav-item">
-            <a href="{{ route('tipo_cambios.index') }}" class="nav-link {{ Request::is('tipo_cambios*') ? 'active' : '' }}">
+            <a href="{{ route('tipo_cambios.index') }}" class="nav-link {{ (Request::is('tipo_cambios')||Request::is('tipo_cambios/*')) ? 'active' : '' }}">
                 <i class="nav-icon fas fa-hand-holding-usd"></i>
                 <p>Tipo Cambios</p>
             </a>
@@ -167,6 +174,12 @@
 </li>
 
 <li class="nav-item">
+    <a href="{{ route('sessiones.index') }}" class="nav-link {{ Request::is('sessiones*') ? 'active' : '' }}">
+        <i class="nav-icon fas fa-home"></i>
+        <p>Sessiones</p>
+    </a>
+</li>
+<li class="nav-item">
     <a href="{{ route('estudios_usuarios.index') }}" class="nav-link {{ Request::is('estudios_usuarios*') ? 'active' : '' }}">
         <i class="nav-icon fas fa-home"></i>
         <p>Estudios Usuarios</p>
@@ -180,9 +193,4 @@
 
 @endif
 
-<li class="nav-item">
-    <a href="{{ route('sessiones.index') }}" class="nav-link {{ Request::is('sessiones*') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-home"></i>
-        <p>Sessiones</p>
-    </a>
-</li>
+
