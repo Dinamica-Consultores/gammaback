@@ -60,6 +60,10 @@ class in_ventasAPIController extends AppBaseController
             $joins->on('tipo_cambios.mes','=','in_ventas.mes')
             ->on('tipo_cambios.ano','=','in_ventas.ano')
             ->on('tipo_cambios.id_excel','=','in_ventas.id_excel');
+        }) ->leftjoin('tipo_cambios_globals',function($join){
+            $join->on("tipo_cambios_globals.id_estudio","=","companies.id_estudio")
+            ->on('tipo_cambios_globals.mes','=','in_ventas.mes')
+            ->on('tipo_cambios_globals.ano','=','in_ventas.ano');
         })
         ->join('setup_analises','setup_analises.codigo','in_ventas.codigo_analisis');
         $sqlCheck= $sqlCheck->join('grupo_economicos_empresas','grupo_economicos_empresas.id_company','companies.id');
@@ -110,6 +114,10 @@ class in_ventasAPIController extends AppBaseController
             $joins->on('tipo_cambios.mes','=','in_ventas.mes')
             ->on('tipo_cambios.ano','=','in_ventas.ano')
             ->on('tipo_cambios.id_excel','=','in_ventas.id_excel');
+        })->leftjoin('tipo_cambios_globals',function($join){
+            $join->on("tipo_cambios_globals.id_estudio","=","companies.id_estudio")
+            ->on('tipo_cambios_globals.mes','=','in_ventas.mes')
+            ->on('tipo_cambios_globals.ano','=','in_ventas.ano');
         })
         ->join('setup_analises','setup_analises.codigo','in_ventas.codigo_analisis');
         $sqlCheck= $sqlCheck->join('grupo_economicos_empresas','grupo_economicos_empresas.id_company','companies.id');
@@ -143,25 +151,25 @@ class in_ventasAPIController extends AppBaseController
         $textoBusqueda='in_ventas.ventas_uyu as amount_ventas,
         in_ventas.costo_uyu,
         in_ventas.ganancia_bruta_uyu,
-        (CAST(in_ventas.ventas_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_compra AS DECIMAL(18,3)) ) as amount_ventas_dolar_compra,
-        (CAST(in_ventas.costo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_compra AS DECIMAL(18,3)) ) as costo_uyu_dolar_compra,
-        (CAST(in_ventas.ganancia_bruta_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_compra AS DECIMAL(18,3)) ) as ganancia_bruta_uyu_dolar_compra,
+        (CAST(in_ventas.ventas_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_ventas_dolar_compra,
+        (CAST(in_ventas.costo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as costo_uyu_dolar_compra,
+        (CAST(in_ventas.ganancia_bruta_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as ganancia_bruta_uyu_dolar_compra,
        
-        (CAST(in_ventas.ventas_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_venta AS DECIMAL(18,3)) ) as amount_ventas_dolar_venta,
-        (CAST(in_ventas.costo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_venta AS DECIMAL(18,3)) ) as costo_uyu_dolar_venta,
-        (CAST(in_ventas.ganancia_bruta_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_venta AS DECIMAL(18,3)) ) as ganancia_bruta_uyu_dolar_venta,
+        (CAST(in_ventas.ventas_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3)) ) as amount_ventas_dolar_venta,
+        (CAST(in_ventas.costo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3)) ) as costo_uyu_dolar_venta,
+        (CAST(in_ventas.ganancia_bruta_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3)) ) as ganancia_bruta_uyu_dolar_venta,
 
-        (CAST(in_ventas.ventas_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_promedio AS DECIMAL(18,3)) ) as amount_ventas_dolar_promedio,
-        (CAST(in_ventas.costo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_promedio AS DECIMAL(18,3)) ) as costo_uyu_dolar_promedio,
-        (CAST(in_ventas.ganancia_bruta_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_promedio AS DECIMAL(18,3)) ) as ganancia_bruta_uyu_dolar_promedio,
+        (CAST(in_ventas.ventas_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3)) ) as amount_ventas_dolar_promedio,
+        (CAST(in_ventas.costo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3)) ) as costo_uyu_dolar_promedio,
+        (CAST(in_ventas.ganancia_bruta_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3)) ) as ganancia_bruta_uyu_dolar_promedio,
 
-        (CAST(in_ventas.ventas_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.euro_promedio AS DECIMAL(18,3)) ) as amount_ventas_euro_promedio,
-        (CAST(in_ventas.costo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.euro_promedio AS DECIMAL(18,3)) ) as costo_uyu_euro_promedio,
-        (CAST(in_ventas.ganancia_bruta_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.euro_promedio AS DECIMAL(18,3)) ) as ganancia_bruta_uyu_euro_promedio,
+        (CAST(in_ventas.ventas_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3)) ) as amount_ventas_euro_promedio,
+        (CAST(in_ventas.costo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3)) ) as costo_uyu_euro_promedio,
+        (CAST(in_ventas.ganancia_bruta_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3)) ) as ganancia_bruta_uyu_euro_promedio,
 
-        (CAST(in_ventas.ventas_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.francosuizo_promedio AS DECIMAL(18,3)) ) as amount_ventas_francosuizo_promedio,
-        (CAST(in_ventas.costo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.francosuizo_promedio AS DECIMAL(18,3)) ) as costo_uyu_francosuizo_promedio,
-        (CAST(in_ventas.ganancia_bruta_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.francosuizo_promedio AS DECIMAL(18,3)) ) as ganancia_bruta_uyu_francosuizo_promedio,
+        (CAST(in_ventas.ventas_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3)) ) as amount_ventas_francosuizo_promedio,
+        (CAST(in_ventas.costo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3)) ) as costo_uyu_francosuizo_promedio,
+        (CAST(in_ventas.ganancia_bruta_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3)) ) as ganancia_bruta_uyu_francosuizo_promedio,
         in_ventas.cantidad_venta_unidades,
         in_ventas.cantidad_costo,
         in_ventas.cantidad_margen,
@@ -177,6 +185,10 @@ class in_ventasAPIController extends AppBaseController
             $joins->on('tipo_cambios.mes','=','in_ventas.mes')
             ->on('tipo_cambios.ano','=','in_ventas.ano')
             ->on('tipo_cambios.id_excel','=','in_ventas.id_excel');
+        })->leftjoin('tipo_cambios_globals',function($join){
+            $join->on("tipo_cambios_globals.id_estudio","=","companies.id_estudio")
+            ->on('tipo_cambios_globals.mes','=','in_ventas.mes')
+            ->on('tipo_cambios_globals.ano','=','in_ventas.ano');
         })
         ->join('setup_analises',function($join){
             $join->on("setup_analises.id_excel","=","in_ventas.id_excel")
@@ -190,6 +202,10 @@ class in_ventasAPIController extends AppBaseController
             $joins->on('tipo_cambios.mes','=','in_ventas.mes')
             ->on('tipo_cambios.ano','=','in_ventas.ano')
             ->on('tipo_cambios.id_excel','=','in_ventas.id_excel');
+        })->leftjoin('tipo_cambios_globals',function($join){
+            $join->on("tipo_cambios_globals.id_estudio","=","companies.id_estudio")
+            ->on('tipo_cambios_globals.mes','=','in_ventas.mes')
+            ->on('tipo_cambios_globals.ano','=','in_ventas.ano');
         })
         ->join('setup_analises',function($join){
             $join->on("setup_analises.id_excel","=","in_ventas.id_excel")
@@ -248,25 +264,25 @@ class in_ventasAPIController extends AppBaseController
         $textoBusqueda='SUM(in_ventas.ventas_uyu) as amount_ventas,
         SUM(in_ventas.costo_uyu) as costo_uyu,
         SUM(in_ventas.ganancia_bruta_uyu) as ganancia_bruta_uyu,
-        SUM(CAST(in_ventas.ventas_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_compra AS DECIMAL(18,3)) ) as amount_ventas_dolar_compra,
-        SUM(CAST(in_ventas.costo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_compra AS DECIMAL(18,3)) ) as costo_uyu_dolar_compra,
-        SUM(CAST(in_ventas.ganancia_bruta_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_compra AS DECIMAL(18,3)) ) as ganancia_bruta_uyu_dolar_compra,
+        SUM(CAST(in_ventas.ventas_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_ventas_dolar_compra,
+        SUM(CAST(in_ventas.costo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as costo_uyu_dolar_compra,
+        SUM(CAST(in_ventas.ganancia_bruta_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as ganancia_bruta_uyu_dolar_compra,
        
-        SUM(CAST(in_ventas.ventas_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_venta AS DECIMAL(18,3)) ) as amount_ventas_dolar_venta,
-        SUM(CAST(in_ventas.costo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_venta AS DECIMAL(18,3)) ) as costo_uyu_dolar_venta,
-        SUM(CAST(in_ventas.ganancia_bruta_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_venta AS DECIMAL(18,3)) ) as ganancia_bruta_uyu_dolar_venta,
+        SUM(CAST(in_ventas.ventas_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3)) ) as amount_ventas_dolar_venta,
+        SUM(CAST(in_ventas.costo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3)) ) as costo_uyu_dolar_venta,
+        SUM(CAST(in_ventas.ganancia_bruta_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3)) ) as ganancia_bruta_uyu_dolar_venta,
 
-        SUM(CAST(in_ventas.ventas_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_promedio AS DECIMAL(18,3)) ) as amount_ventas_dolar_promedio,
-        SUM(CAST(in_ventas.costo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_promedio AS DECIMAL(18,3)) ) as costo_uyu_dolar_promedio,
-        SUM(CAST(in_ventas.ganancia_bruta_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_promedio AS DECIMAL(18,3)) ) as ganancia_bruta_uyu_dolar_promedio,
+        SUM(CAST(in_ventas.ventas_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3)) ) as amount_ventas_dolar_promedio,
+        SUM(CAST(in_ventas.costo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3)) ) as costo_uyu_dolar_promedio,
+        SUM(CAST(in_ventas.ganancia_bruta_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3)) ) as ganancia_bruta_uyu_dolar_promedio,
 
-        SUM(CAST(in_ventas.ventas_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.euro_promedio AS DECIMAL(18,3)) ) as amount_ventas_euro_promedio,
-        SUM(CAST(in_ventas.costo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.euro_promedio AS DECIMAL(18,3)) ) as costo_uyu_euro_promedio,
-        SUM(CAST(in_ventas.ganancia_bruta_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.euro_promedio AS DECIMAL(18,3)) ) as ganancia_bruta_uyu_euro_promedio,
+        SUM(CAST(in_ventas.ventas_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3)) ) as amount_ventas_euro_promedio,
+        SUM(CAST(in_ventas.costo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3)) ) as costo_uyu_euro_promedio,
+        SUM(CAST(in_ventas.ganancia_bruta_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3)) ) as ganancia_bruta_uyu_euro_promedio,
 
-        SUM(CAST(in_ventas.ventas_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.francosuizo_promedio AS DECIMAL(18,3)) ) as amount_ventas_francosuizo_promedio,
-        SUM(CAST(in_ventas.costo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.francosuizo_promedio AS DECIMAL(18,3)) ) as costo_uyu_francosuizo_promedio,
-        SUM(CAST(in_ventas.ganancia_bruta_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.francosuizo_promedio AS DECIMAL(18,3)) ) as ganancia_bruta_uyu_francosuizo_promedio,
+        SUM(CAST(in_ventas.ventas_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3)) ) as amount_ventas_francosuizo_promedio,
+        SUM(CAST(in_ventas.costo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3)) ) as costo_uyu_francosuizo_promedio,
+        SUM(CAST(in_ventas.ganancia_bruta_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3)) ) as ganancia_bruta_uyu_francosuizo_promedio,
         SUM(in_ventas.cantidad_venta_unidades) as cantidad_venta_unidades,
         SUM(in_ventas.cantidad_costo) as cantidad_costo,
         SUM(in_ventas.cantidad_margen) as cantidad_margen,
@@ -280,6 +296,10 @@ class in_ventasAPIController extends AppBaseController
             $joins->on('tipo_cambios.mes','=','in_ventas.mes')
             ->on('tipo_cambios.ano','=','in_ventas.ano')
             ->on('tipo_cambios.id_excel','=','in_ventas.id_excel');
+        })->leftjoin('tipo_cambios_globals',function($join){
+            $join->on("tipo_cambios_globals.id_estudio","=","companies.id_estudio")
+            ->on('tipo_cambios_globals.mes','=','in_ventas.mes')
+            ->on('tipo_cambios_globals.ano','=','in_ventas.ano');
         })
         ->join('setup_analises',function($join){
             $join->on("setup_analises.id_excel","=","in_ventas.id_excel")
@@ -293,6 +313,10 @@ class in_ventasAPIController extends AppBaseController
             $joins->on('tipo_cambios.mes','=','in_ventas.mes')
             ->on('tipo_cambios.ano','=','in_ventas.ano')
             ->on('tipo_cambios.id_excel','=','in_ventas.id_excel');
+        })->leftjoin('tipo_cambios_globals',function($join){
+            $join->on("tipo_cambios_globals.id_estudio","=","companies.id_estudio")
+            ->on('tipo_cambios_globals.mes','=','in_ventas.mes')
+            ->on('tipo_cambios_globals.ano','=','in_ventas.ano');
         })
         ->join('setup_analises',function($join){
             $join->on("setup_analises.id_excel","=","in_ventas.id_excel")

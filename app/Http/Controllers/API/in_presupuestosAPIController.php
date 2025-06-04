@@ -45,13 +45,13 @@ class in_presupuestosAPIController extends AppBaseController
         }
         $id_estudios=$user->getIdEstudios2($user->id);
         $sqlCheck = in_presupuestos::SELECT(DB::raw('SUM(in_presupuestos.monto_uyu) as amount_uyu,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ui AS DECIMAL(18,3))) as amount_uyu_ui,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
         SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
         clasificacion_cuenta_resuls.clasificacion_er,
         in_presupuestos.ano,
@@ -63,6 +63,11 @@ class in_presupuestosAPIController extends AppBaseController
                 $joins->on('tipo_cambios.mes','=','in_presupuestos.mes')
                 ->on('tipo_cambios.ano','=','in_presupuestos.ano')
                 ->on('tipo_cambios.id_excel','=','in_presupuestos.id_excel');
+            })
+            ->leftjoin('tipo_cambios_globals',function($join){
+                $join->on("tipo_cambios_globals.id_estudio","=","companies.id_estudio")
+                ->on('tipo_cambios_globals.mes','=','in_presupuestos.mes')
+                ->on('tipo_cambios_globals.ano','=','in_presupuestos.ano');
             })
             ->join('clasificacion_cuenta_resuls',function($join){
                 $join->on("clasificacion_cuenta_resuls.id_excel","=","in_presupuestos.id_excel")
@@ -96,13 +101,13 @@ class in_presupuestosAPIController extends AppBaseController
         }
         $id_estudios=$user->getIdEstudios2($user->id);
         $sqlCheck = in_presupuestos::SELECT(DB::raw('SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,5))) as amount_uyu,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,5))/CAST(tipo_cambios.dolar_compra AS DECIMAL(18,5)) ) as amount_uyu_dolar_compra,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,5))/CAST(tipo_cambios.dolar_venta AS DECIMAL(18,5))) as amount_uyu_dolar_venta,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,5))/CAST(tipo_cambios.dolar_promedio AS DECIMAL(18,5))) as amount_uyu_dolar_promedio,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,5))/CAST(tipo_cambios.euro_promedio AS DECIMAL(18,5))) as amount_uyu_euro_promedio,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,5))/CAST(tipo_cambios.francosuizo_promedio AS DECIMAL(18,5))) as amount_uyu_francosuizo_promedio,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,5))/CAST(tipo_cambios.ui AS DECIMAL(18,5))) as amount_uyu_ui,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,5))/CAST(tipo_cambios.ipc AS DECIMAL(18,5))) as amount_uyu_ipc,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,5))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,5)) ) as amount_uyu_dolar_compra,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,5))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,5))) as amount_uyu_dolar_venta,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,5))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,5))) as amount_uyu_dolar_promedio,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,5))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,5))) as amount_uyu_euro_promedio,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,5))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,5))) as amount_uyu_francosuizo_promedio,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,5))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,5))) as amount_uyu_ui,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,5))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,5))) as amount_uyu_ipc,
         SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,5))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,5))) as amount_uyu_ipc_empresa,
         clasificacion_cuenta_resuls.clasificacion_cuenta_juridica_legal,
         clasificacion_cuenta_resuls.origen,
@@ -115,6 +120,11 @@ class in_presupuestosAPIController extends AppBaseController
                 $joins->on('tipo_cambios.mes','=','in_presupuestos.mes')
                 ->on('tipo_cambios.ano','=','in_presupuestos.ano')
                 ->on('tipo_cambios.id_excel','=','in_presupuestos.id_excel');
+            })
+            ->leftjoin('tipo_cambios_globals',function($join){
+                $join->on("tipo_cambios_globals.id_estudio","=","companies.id_estudio")
+                ->on('tipo_cambios_globals.mes','=','in_presupuestos.mes')
+                ->on('tipo_cambios_globals.ano','=','in_presupuestos.ano');
             })
             ->join('clasificacion_cuenta_resuls',function($join){
                 $join->on("clasificacion_cuenta_resuls.id_excel","=","in_presupuestos.id_excel")
@@ -159,15 +169,15 @@ class in_presupuestosAPIController extends AppBaseController
         }
         $id_estudios=$user->getIdEstudios2($user->id);
         $sqlCheck=in_presupuestos::SELECT(DB::raw('SUM(in_presupuestos.monto_uyu) as amount_uyu,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ui AS DECIMAL(18,3))) as amount_uyu_ui,
-        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
         SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
-        CAST(tipo_cambios.ipc AS DECIMAL(18,3)) as ipc,
+        CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3)) as ipc,
         clasificacion_cuenta_resuls.clasificacion_punto_equilibrio,
         clasificacion_cuenta_resuls.clasificacion_er,
         clasificacion_cuenta_resuls.grupo,
@@ -180,6 +190,10 @@ class in_presupuestosAPIController extends AppBaseController
             $join->on('tipo_cambios.mes','=','in_presupuestos.mes')
             ->on('tipo_cambios.ano','=','in_presupuestos.ano')
             ->on('tipo_cambios.id_excel','=','in_presupuestos.id_excel');
+        })->leftjoin('tipo_cambios_globals',function($join){
+            $join->on("tipo_cambios_globals.id_estudio","=","companies.id_estudio")
+            ->on('tipo_cambios_globals.mes','=','in_presupuestos.mes')
+            ->on('tipo_cambios_globals.ano','=','in_presupuestos.ano');
         })
         ->join('clasificacion_cuenta_resuls',function($join){
             $join->on("clasificacion_cuenta_resuls.id_excel","=","in_presupuestos.id_excel")
@@ -219,15 +233,15 @@ class in_presupuestosAPIController extends AppBaseController
         }
         $id_estudios=$user->getIdEstudios2($user->id);
         $sqlCheck=in_presupuestos::SELECT(DB::raw('in_presupuestos.monto_uyu as amount_uyu,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ui AS DECIMAL(18,3))) as amount_uyu_ui,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
+        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
+        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
+        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
+        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
+        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
+        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
+        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
         (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
-        CAST(tipo_cambios.ipc AS DECIMAL(18,3)) as ipc,
+        CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3)) as ipc,
         clasificacion_cuenta_resuls.clasificacion_punto_equilibrio,
         in_presupuestos.ano,
         in_presupuestos.mes'))
@@ -238,6 +252,10 @@ class in_presupuestosAPIController extends AppBaseController
             $join->on('tipo_cambios.mes','=','in_presupuestos.mes')
             ->on('tipo_cambios.ano','=','in_presupuestos.ano')
             ->on('tipo_cambios.id_excel','=','in_presupuestos.id_excel');
+        })->leftjoin('tipo_cambios_globals',function($join){
+            $join->on("tipo_cambios_globals.id_estudio","=","companies.id_estudio")
+            ->on('tipo_cambios_globals.mes','=','in_presupuestos.mes')
+            ->on('tipo_cambios_globals.ano','=','in_presupuestos.ano');
         })
         ->join('clasificacion_cuenta_resuls',function($join){
             $join->on("clasificacion_cuenta_resuls.id_excel","=","in_presupuestos.id_excel")
@@ -270,15 +288,15 @@ class in_presupuestosAPIController extends AppBaseController
     }
     public function showInformERFiscal($year,$month,$yearfiscal,$monthfiscal,$sucursal):JsonResponse{
         $dataSqls='in_presupuestos.monto_uyu as amount_uyu,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ui AS DECIMAL(18,3))) as amount_uyu_ui,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
+        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
+        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
+        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
+        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
+        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
+        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
+        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
         (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
-        CAST(tipo_cambios.ipc AS DECIMAL(18,3)) as ipc,
+        CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3)) as ipc,
         clasificacion_cuenta_resuls.nombre,
         clasificacion_cuenta_resuls.origen,
         clasificacion_cuenta_resuls.grupo,
@@ -302,6 +320,10 @@ class in_presupuestosAPIController extends AppBaseController
                 $joins->on('tipo_cambios.mes','=','in_presupuestos.mes')
                 ->on('tipo_cambios.ano','=','in_presupuestos.ano')
                 ->on('tipo_cambios.id_excel','=','in_presupuestos.id_excel');
+            })->leftjoin('tipo_cambios_globals',function($join){
+                $join->on("tipo_cambios_globals.id_estudio","=","companies.id_estudio")
+                ->on('tipo_cambios_globals.mes','=','in_presupuestos.mes')
+                ->on('tipo_cambios_globals.ano','=','in_presupuestos.ano');
             })
             ->join('clasificacion_cuenta_resuls',function($join){
                 $join->on("clasificacion_cuenta_resuls.id_excel","=","in_presupuestos.id_excel")
@@ -315,6 +337,10 @@ class in_presupuestosAPIController extends AppBaseController
                 $joins->on('tipo_cambios.mes','=','in_presupuestos.mes')
                 ->on('tipo_cambios.ano','=','in_presupuestos.ano')
                 ->on('tipo_cambios.id_excel','=','in_presupuestos.id_excel');
+            })->leftjoin('tipo_cambios_globals',function($join){
+                $join->on("tipo_cambios_globals.id_estudio","=","companies.id_estudio")
+                ->on('tipo_cambios_globals.mes','=','in_presupuestos.mes')
+                ->on('tipo_cambios_globals.ano','=','in_presupuestos.ano');
             })
             ->join('clasificacion_cuenta_resuls',function($join){
                 $join->on("clasificacion_cuenta_resuls.id_excel","=","in_presupuestos.id_excel")
@@ -384,15 +410,15 @@ class in_presupuestosAPIController extends AppBaseController
         $id_estudios=$user->getIdEstudios2($user->id);
         $sqlCheck=in_presupuestos::SELECT(DB::raw('in_presupuestos.monto_uyu as amount_uyu,
         clasificacion_cuenta_resuls.nombre,
-        (in_presupuestos.monto_uyu/tipo_cambios.dolar_compra) as amount_uyu_dolar_compra,
-        (in_presupuestos.monto_uyu/tipo_cambios.dolar_venta) as amount_uyu_dolar_venta,
-        (in_presupuestos.monto_uyu/tipo_cambios.dolar_promedio) as amount_uyu_dolar_promedio,
-        (in_presupuestos.monto_uyu/tipo_cambios.euro_promedio) as amount_uyu_euro_promedio,
-        (in_presupuestos.monto_uyu/tipo_cambios.francosuizo_promedio) as amount_uyu_francosuizo_promedio,
-        (in_presupuestos.monto_uyu/tipo_cambios.ui) as amount_uyu_ui,
-        (in_presupuestos.monto_uyu/tipo_cambios.ipc) as amount_uyu_ipc,
+        (in_presupuestos.monto_uyu/tipo_cambios_globals.dolar_compra) as amount_uyu_dolar_compra,
+        (in_presupuestos.monto_uyu/tipo_cambios_globals.dolar_venta) as amount_uyu_dolar_venta,
+        (in_presupuestos.monto_uyu/tipo_cambios_globals.dolar_promedio) as amount_uyu_dolar_promedio,
+        (in_presupuestos.monto_uyu/tipo_cambios_globals.euro_promedio) as amount_uyu_euro_promedio,
+        (in_presupuestos.monto_uyu/tipo_cambios_globals.francosuizo_promedio) as amount_uyu_francosuizo_promedio,
+        (in_presupuestos.monto_uyu/tipo_cambios_globals.ui) as amount_uyu_ui,
+        (in_presupuestos.monto_uyu/tipo_cambios_globals.ipc) as amount_uyu_ipc,
         (in_presupuestos.monto_uyu/tipo_cambios.ipc_empresa) as amount_uyu_ipc_empresa,
-        CAST(tipo_cambios.ipc AS DECIMAL(18,3)) as ipc,
+        CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3)) as ipc,
         clasificacion_cuenta_resuls.origen,
         clasificacion_cuenta_resuls.grupo,
         clasificacion_cuenta_resuls.nivel_1,
@@ -405,6 +431,10 @@ class in_presupuestosAPIController extends AppBaseController
                 $join->on('tipo_cambios.mes','=','in_presupuestos.mes')
                 ->on('tipo_cambios.ano','=','in_presupuestos.ano')
                 ->on('tipo_cambios.id_excel','=','in_presupuestos.id_excel');
+            })->leftjoin('tipo_cambios_globals',function($join){
+                $join->on("tipo_cambios_globals.id_estudio","=","companies.id_estudio")
+                ->on('tipo_cambios_globals.mes','=','in_presupuestos.mes')
+                ->on('tipo_cambios_globals.ano','=','in_presupuestos.ano');
             })
         ->join('clasificacion_cuenta_resuls',function($join){
             $join->on("clasificacion_cuenta_resuls.id_excel","=","in_presupuestos.id_excel")
@@ -443,15 +473,15 @@ class in_presupuestosAPIController extends AppBaseController
         }
         $id_estudios=$user->getIdEstudios2($user->id);
         $sqlCheck=in_presupuestos::SELECT(DB::raw('in_presupuestos.monto_uyu as amount_uyu,
-        (in_presupuestos.monto_uyu/tipo_cambios.dolar_compra) as amount_uyu_dolar_compra,
-        (in_presupuestos.monto_uyu/tipo_cambios.dolar_venta) as amount_uyu_dolar_venta,
-        (in_presupuestos.monto_uyu/tipo_cambios.dolar_promedio) as amount_uyu_dolar_promedio,
-        (in_presupuestos.monto_uyu/tipo_cambios.euro_promedio) as amount_uyu_euro_promedio,
-        (in_presupuestos.monto_uyu/tipo_cambios.francosuizo_promedio) as amount_uyu_francosuizo_promedio,
-        (in_presupuestos.monto_uyu/tipo_cambios.ui) as amount_uyu_ui,
-        (in_presupuestos.monto_uyu/tipo_cambios.ipc) as amount_uyu_ipc,
+        (in_presupuestos.monto_uyu/tipo_cambios_globals.dolar_compra) as amount_uyu_dolar_compra,
+        (in_presupuestos.monto_uyu/tipo_cambios_globals.dolar_venta) as amount_uyu_dolar_venta,
+        (in_presupuestos.monto_uyu/tipo_cambios_globals.dolar_promedio) as amount_uyu_dolar_promedio,
+        (in_presupuestos.monto_uyu/tipo_cambios_globals.euro_promedio) as amount_uyu_euro_promedio,
+        (in_presupuestos.monto_uyu/tipo_cambios_globals.francosuizo_promedio) as amount_uyu_francosuizo_promedio,
+        (in_presupuestos.monto_uyu/tipo_cambios_globals.ui) as amount_uyu_ui,
+        (in_presupuestos.monto_uyu/tipo_cambios_globals.ipc) as amount_uyu_ipc,
         (in_presupuestos.monto_uyu/tipo_cambios.ipc_empresa) as amount_uyu_ipc_empresa,
-        CAST(tipo_cambios.ipc AS DECIMAL(18,3)) as ipc, 
+        CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3)) as ipc, 
         clasificacion_cuenta_resuls.nombre,
         clasificacion_cuenta_resuls.origen,
         clasificacion_cuenta_resuls.grupo,
@@ -471,6 +501,10 @@ class in_presupuestosAPIController extends AppBaseController
             $join->on('tipo_cambios.mes','=','in_presupuestos.mes')
             ->on('tipo_cambios.ano','=','in_presupuestos.ano')
             ->on('tipo_cambios.id_excel','=','in_presupuestos.id_excel');
+        })->leftjoin('tipo_cambios_globals',function($join){
+            $join->on("tipo_cambios_globals.id_estudio","=","companies.id_estudio")
+            ->on('tipo_cambios_globals.mes','=','in_presupuestos.mes')
+            ->on('tipo_cambios_globals.ano','=','in_presupuestos.ano');
         })
         ->join('clasificacion_cuenta_resuls',function($join){
             $join->on("clasificacion_cuenta_resuls.id_excel","=","in_presupuestos.id_excel")

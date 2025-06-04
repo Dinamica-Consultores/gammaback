@@ -40,9 +40,10 @@ class tipo_cambioAPIController extends AppBaseController
     public function getTipoCambio($year,$month){
 
         $user = auth()->guard('api')->user();
-        $sqlCheck = tipo_cambio::SELECT(DB::raw('tipo_cambios.*'))
+        $sqlCheck = tipo_cambio::SELECT(DB::raw('tipo_cambios.id_excel,tipo_cambios.ipc_empresa,tipo_cambios_globals.*'))
         ->join('excelscompanies', 'excelscompanies.id', 'tipo_cambios.id_excel')
-        ->join('companies', 'companies.id', 'excelscompanies.id_company');
+        ->join('companies', 'companies.id', 'excelscompanies.id_company')
+        ->join('tipo_cambios_globals', 'tipo_cambios_globals.id_estudio', 'companies.id_estudio');
         $sqlCheck= $sqlCheck->join('grupo_economicos_empresas','grupo_economicos_empresas.id_company','companies.id');
         $sqlCheck= $sqlCheck->join('usuario_grupoeconomicos','usuario_grupoeconomicos.id_grupoeconomico','grupo_economicos_empresas.id_grupoeconomico');
         $sqlCheck= $sqlCheck->where('grupo_economicos_empresas.id_grupoeconomico',$user->id_group_show);

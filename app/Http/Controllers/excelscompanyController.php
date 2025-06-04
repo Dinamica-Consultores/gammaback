@@ -270,14 +270,7 @@ class excelscompanyController extends AppBaseController
             'fecha'=>date('Y-m-d H:i:s', strtotime($fecha==NULL?'':$fecha)),
             'mes'=>date('n', strtotime($fecha==NULL?'':$fecha)),
             'ano'=>date('Y', strtotime($fecha==NULL?'':$fecha)),
-            'dolar_compra'=>$valor[1]==NULL?'1':str_replace(',','',$valor[1]),
-            'dolar_venta'=>$valor[2]==NULL?'1':str_replace(',','',$valor[2]),
-            'dolar_promedio'=>$valor[3]==NULL?'1':str_replace(',','',$valor[3]),
-            'euro_promedio'=>$valor[4]==NULL?'1':str_replace(',','',$valor[4]),
-            'francosuizo_promedio'=>$valor[5]==NULL?'1':str_replace(',','',$valor[5]),
-            'ui'=>$valor[6]==NULL?'1':str_replace(',','',$valor[6]),
-            'ipc'=>$valor[7]==NULL?'1':str_replace(',','',$valor[7]),
-            'ipc_empresa'=>$valor[8]==NULL?'1':str_replace(',','',$valor[8]),
+            'ipc_empresa'=>$valor[1]==NULL?'1':str_replace(',','',$valor[1]),
             'id_excel'=>$idExcelCompany
         ];
     };

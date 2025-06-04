@@ -40,13 +40,13 @@ class in_balanceAPIController extends AppBaseController
     public function showEstadoDash($year,$month,$sucursal):JsonResponse
     {
         $select='SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))) as amount_uyu,
-        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
-        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
-        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
-        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
-        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
-        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ui AS DECIMAL(18,3))) as amount_uyu_ui,
-        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
         SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
         categorizacion_cts_balances.nivel_3,
               categorizacion_cts_balances.nivel_4,
@@ -66,6 +66,10 @@ class in_balanceAPIController extends AppBaseController
                 $join->on('tipo_cambios.mes','=','in_balances.mes')
                 ->on('tipo_cambios.ano','=','in_balances.ano')
                 ->on('tipo_cambios.id_excel','=','in_balances.id_excel');
+            }) ->leftjoin('tipo_cambios_globals',function($join){
+                $join->on("tipo_cambios_globals.id_estudio","=","companies.id_estudio")
+                ->on('tipo_cambios_globals.mes','=','in_balances.mes')
+                ->on('tipo_cambios_globals.ano','=','in_balances.ano');
             })
         ->join('categorizacion_cts_balances',function($join){
             $join->on("categorizacion_cts_balances.id_excel","=","in_balances.id_excel")
@@ -101,13 +105,13 @@ class in_balanceAPIController extends AppBaseController
     public function showEstadoSitacionPatrim($year,$month,$yearCierre,$monthCierre,$sucursal):JsonResponse
     {
         $select='CAST(in_balances.saldo_uyu AS DECIMAL(18,3))as amount_uyu,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ui AS DECIMAL(18,3))) as amount_uyu_ui,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
         (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
         categorizacion_cts_balances.nivel_3,
         categorizacion_cts_balances.nivel_4,
@@ -132,6 +136,10 @@ class in_balanceAPIController extends AppBaseController
                 $join->on('tipo_cambios.mes','=','in_balances.mes')
                 ->on('tipo_cambios.ano','=','in_balances.ano')
                 ->on('tipo_cambios.id_excel','=','in_balances.id_excel');
+            })->leftjoin('tipo_cambios_globals',function($join){
+                $join->on("tipo_cambios_globals.id_estudio","=","companies.id_estudio")
+                ->on('tipo_cambios_globals.mes','=','in_balances.mes')
+                ->on('tipo_cambios_globals.ano','=','in_balances.ano');
             })
         ->join('categorizacion_cts_balances',function($join){
             $join->on("categorizacion_cts_balances.id_excel","=","in_balances.id_excel")
@@ -146,6 +154,10 @@ class in_balanceAPIController extends AppBaseController
             $join->on('tipo_cambios.mes','=','in_balances.mes')
             ->on('tipo_cambios.ano','=','in_balances.ano')
             ->on('tipo_cambios.id_excel','=','in_balances.id_excel');
+        })->leftjoin('tipo_cambios_globals',function($join){
+            $join->on("tipo_cambios_globals.id_estudio","=","companies.id_estudio")
+            ->on('tipo_cambios_globals.mes','=','in_balances.mes')
+            ->on('tipo_cambios_globals.ano','=','in_balances.ano');
         })
         ->join('categorizacion_cts_balances',function($join){
             $join->on("categorizacion_cts_balances.id_excel","=","in_balances.id_excel")
@@ -160,6 +172,10 @@ class in_balanceAPIController extends AppBaseController
             $join->on('tipo_cambios.mes','=','in_balances.mes')
             ->on('tipo_cambios.ano','=','in_balances.ano')
             ->on('tipo_cambios.id_excel','=','in_balances.id_excel');
+        })->leftjoin('tipo_cambios_globals',function($join){
+            $join->on("tipo_cambios_globals.id_estudio","=","companies.id_estudio")
+            ->on('tipo_cambios_globals.mes','=','in_balances.mes')
+            ->on('tipo_cambios_globals.ano','=','in_balances.ano');
         })
         ->join('categorizacion_cts_balances',function($join){
             $join->on("categorizacion_cts_balances.id_excel","=","in_balances.id_excel")
@@ -230,13 +246,13 @@ class in_balanceAPIController extends AppBaseController
         }
         $id_estudios=$user->getIdEstudios2($user->id);
         $sqlCheck = in_balance::SELECT(DB::raw('CAST(in_balances.saldo_uyu AS DECIMAL(18,3)) as amount_uyu,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ui AS DECIMAL(18,3))) as amount_uyu_ui,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
         (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
         categorizacion_cts_balances.nivel_3,
         categorizacion_cts_balances.nombre,
@@ -255,6 +271,10 @@ class in_balanceAPIController extends AppBaseController
                 $join->on('tipo_cambios.mes','=','in_balances.mes')
                 ->on('tipo_cambios.ano','=','in_balances.ano')
                 ->on('tipo_cambios.id_excel','=','in_balances.id_excel');
+            })->leftjoin('tipo_cambios_globals',function($join){
+                $join->on("tipo_cambios_globals.id_estudio","=","companies.id_estudio")
+                ->on('tipo_cambios_globals.mes','=','in_balances.mes')
+                ->on('tipo_cambios_globals.ano','=','in_balances.ano');
             })
             ->join('categorizacion_cts_balances',function($join){
                 $join->on("categorizacion_cts_balances.id_excel","=","in_balances.id_excel")
