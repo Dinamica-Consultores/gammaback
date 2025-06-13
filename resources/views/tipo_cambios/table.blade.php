@@ -4,13 +4,6 @@
             <thead>
             <tr>
                 <th>Fecha</th>
-                <th>Dolar Compra</th>
-                <th>Dolar Venta</th>
-                <th>Dolar Promedio</th>
-                <th>Euro Promedio</th>
-                <th>Franco Suizo Promedio</th>
-                <th>UI</th>
-                <th>IPC</th>
                 <th>IPC Empresa</th>
                 <th>Compañia</th>
                 <th>Version</th>
@@ -21,13 +14,6 @@
             @foreach($tipoCambios as $tipoCambio)
                 <tr>
                     <td>{{ $tipoCambio->fecha }}</td>
-                    <td>{{ $tipoCambio->dolar_compra }}</td>
-                    <td>{{ $tipoCambio->dolar_venta }}</td>
-                    <td>{{ $tipoCambio->dolar_promedio }}</td>
-                    <td>{{ $tipoCambio->euro_promedio }}</td>
-                    <td>{{ $tipoCambio->francosuizo_promedio }}</td>
-                    <td>{{ $tipoCambio->ui }}</td>
-                    <td>{{ $tipoCambio->ipc }}</td>
                     <td>{{ $tipoCambio->ipc_empresa }}</td>
                     <td>{{ $tipoCambio->excel->company->razon_social }}</td>
                     <td>{{ $tipoCambio->excel->version }}</td>
