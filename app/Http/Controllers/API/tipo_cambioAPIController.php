@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Requests\API\Createtipo_cambioAPIRequest;
 use App\Http\Requests\API\Updatetipo_cambioAPIRequest;
 use App\Models\tipo_cambio;
+use App\Models\tipo_cambios_global;
 use App\Repositories\tipo_cambioRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -40,10 +41,12 @@ class tipo_cambioAPIController extends AppBaseController
     public function getTipoCambio($year,$month){
 
         $user = auth()->guard('api')->user();
-        $sqlCheck = tipo_cambio::SELECT(DB::raw('tipo_cambios.id_excel,tipo_cambios.ipc_empresa,tipo_cambios_globals.*'))
-        ->join('excelscompanies', 'excelscompanies.id', 'tipo_cambios.id_excel')
-        ->join('companies', 'companies.id', 'excelscompanies.id_company')
-        ->join('tipo_cambios_globals', 'tipo_cambios_globals.id_estudio', 'companies.id_estudio');
+        $sqlCheck = tipo_cambios_global::SELECT(DB::raw('tipo_cambios.id_excel,tipo_cambios.ipc_empresa,tipo_cambios_globals.*'))
+        ->join('tipo_cambios',function($join){
+            $join->on('tipo_cambios.mes','=','tipo_cambios_globals.mes')
+            ->on('tipo_cambios.ano','=','tipo_cambios_globals.ano');
+        })->join('excelscompanies', 'excelscompanies.id', 'tipo_cambios.id_excel')
+        ->join('companies', 'companies.id', 'excelscompanies.id_company'); 
         $sqlCheck= $sqlCheck->join('grupo_economicos_empresas','grupo_economicos_empresas.id_company','companies.id');
         $sqlCheck= $sqlCheck->join('usuario_grupoeconomicos','usuario_grupoeconomicos.id_grupoeconomico','grupo_economicos_empresas.id_grupoeconomico');
         $sqlCheck= $sqlCheck->where('grupo_economicos_empresas.id_grupoeconomico',$user->id_group_show);
@@ -52,7 +55,7 @@ class tipo_cambioAPIController extends AppBaseController
             $sqlCheck= $sqlCheck->where('grupo_economicos_empresas.id_company',$user->id_company_show);
         }
         
-        $sqlCheck = $sqlCheck->where('tipo_cambios.ano', $year)->where('tipo_cambios.mes', $month);
+        $sqlCheck = $sqlCheck->where('tipo_cambios_globals.ano', $year)->where('tipo_cambios_globals.mes', $month);
         $data = $sqlCheck->get();
         return $this->sendResponse($data, 'Get Data TipoCambios');
     }
