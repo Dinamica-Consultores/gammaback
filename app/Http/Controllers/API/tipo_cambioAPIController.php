@@ -41,11 +41,8 @@ class tipo_cambioAPIController extends AppBaseController
     public function getTipoCambio($year,$month){
 
         $user = auth()->guard('api')->user();
-        $sqlCheck = tipo_cambios_global::SELECT(DB::raw('tipo_cambios.id_excel,tipo_cambios.ipc_empresa,tipo_cambios_globals.*'))
-        ->join('tipo_cambios',function($join){
-            $join->on('tipo_cambios.mes','=','tipo_cambios_globals.mes')
-            ->on('tipo_cambios.ano','=','tipo_cambios_globals.ano');
-        })->join('excelscompanies', 'excelscompanies.id', 'tipo_cambios.id_excel')
+        $sqlCheck = tipo_cambio::SELECT(DB::raw('tipo_cambios.id_excel,tipo_cambios.ipc_empresa'))
+        ->join('excelscompanies', 'excelscompanies.id', 'tipo_cambios.id_excel')
         ->join('companies', 'companies.id', 'excelscompanies.id_company'); 
         $sqlCheck= $sqlCheck->join('grupo_economicos_empresas','grupo_economicos_empresas.id_company','companies.id');
         $sqlCheck= $sqlCheck->join('usuario_grupoeconomicos','usuario_grupoeconomicos.id_grupoeconomico','grupo_economicos_empresas.id_grupoeconomico');
@@ -54,10 +51,44 @@ class tipo_cambioAPIController extends AppBaseController
         if($user->id_company_show>0){
             $sqlCheck= $sqlCheck->where('grupo_economicos_empresas.id_company',$user->id_company_show);
         }
-        
-        $sqlCheck = $sqlCheck->where('tipo_cambios_globals.ano', $year)->where('tipo_cambios_globals.mes', $month);
+        $sqlCheck = $sqlCheck->where('tipo_cambios.ano', $year)->where('tipo_cambios.mes', $month);
         $data = $sqlCheck->get();
-        return $this->sendResponse($data, 'Get Data TipoCambios');
+
+        $sqlCheck2 = tipo_cambios_global::SELECT('*')->where('tipo_cambios_globals.ano', $year)->where('tipo_cambios_globals.mes', $month);
+        $data2 = $sqlCheck2->get();
+        $info=array(
+            'idGlobal'=>0,
+            'id'=>0,
+            'dolar_compra'=>0,
+            'dolar_venta'=>0,
+            'dolar_promedio'=>0,
+            'euro_promedio'=>0,
+            'francosuizo_promedio'=>0,
+            'ui'=>0,
+            'ipc'=>0,
+            'mes'=>0,
+            'ano'=>0,
+            'ipc_empresa'=>0,
+            'id_excel'=>0,
+        );
+        if(count($data2)>0){
+            $info['id']=$data2[0]['id'];
+            $info['dolar_compra']=$data2[0]['dolar_compra'];
+            $info['dolar_venta']=$data2[0]['dolar_venta'];
+            $info['dolar_promedio']=$data2[0]['dolar_promedio'];
+            $info['euro_promedio']=$data2[0]['euro_promedio'];
+            $info['francosuizo_promedio']=$data2[0]['francosuizo_promedio'];
+            $info['ui']=$data2[0]['ui'];
+            $info['ipc']=$data2[0]['ipc'];
+            $info['mes']=$data2[0]['mes'];
+            $info['ano']=$data2[0]['ano'];
+        }
+        if(count($data)>0){
+
+            $info['id_excel']=$data[0]['id_excel'];
+            $info['ipc_empresa']=$data[0]['ipc_empresa'];
+        }
+        return $this->sendResponse(array($info), 'Get Data TipoCambios');
     }
     /**
      * Store a newly created tipo_cambio in storage.
