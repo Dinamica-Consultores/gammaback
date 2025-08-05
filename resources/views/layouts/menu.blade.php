@@ -176,7 +176,7 @@
 <li class="nav-item">
     <a href="{{ route('sessiones.index') }}" class="nav-link {{ Request::is('sessiones*') ? 'active' : '' }}">
         <i class="nav-icon fas fa-home"></i>
-        <p>Sessiones</p>
+        <p>Telemetria de usos</p>
     </a>
 </li>
 <li class="nav-item">

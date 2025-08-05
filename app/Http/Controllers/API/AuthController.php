@@ -8,6 +8,9 @@ use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
+
+use App\Models\in_resultado;
+use App\Models\in_presupuestos;
 use Illuminate\Support\Facades\Hash;
 use App\Models\company;
 use App\Models\sucursales;
@@ -178,9 +181,31 @@ class AuthController extends Controller
             $datasucursales= $datasucursales->join('usuario_grupoeconomicos','usuario_grupoeconomicos.id_grupoeconomico','grupo_economicos_empresas.id_grupoeconomico');
             $datasucursales= $datasucursales->where('grupo_economicos_empresas.id_grupoeconomico',$user->id_group_show);
             $datasucursales= $datasucursales->where('usuario_grupoeconomicos.id_users',$user->id);
+
+            $getMaxAnosResultado=in_resultado::selectRaw('MAX(in_resultados.ano) as ANOMAX,min(in_resultados.ano) as ANOMIN')
+            ->join('excelscompanies','excelscompanies.id','in_resultados.id_excel')
+            ->join('companies','excelscompanies.id_company','companies.id');
+            $getMaxAnosResultado= $getMaxAnosResultado->join('grupo_economicos_empresas','grupo_economicos_empresas.id_company','companies.id');
+            $getMaxAnosResultado= $getMaxAnosResultado->join('usuario_grupoeconomicos','usuario_grupoeconomicos.id_grupoeconomico','grupo_economicos_empresas.id_grupoeconomico');
+            $getMaxAnosResultado= $getMaxAnosResultado->where('grupo_economicos_empresas.id_grupoeconomico',$user->id_group_show);
+            $getMaxAnosResultado= $getMaxAnosResultado->where('usuario_grupoeconomicos.id_users',$user->id);
+            $getMaxAnosResultado= $getMaxAnosResultado->where('in_resultados.ano','<>','');
             
+            $getMaxAnosPresupuesto=in_presupuestos::selectRaw('MAX(in_presupuestos.ano) as ANOMAX,min(in_presupuestos.ano) as ANOMIN')
+            ->join('excelscompanies','excelscompanies.id','in_presupuestos.id_excel')
+            ->join('companies','excelscompanies.id_company','companies.id');
+            $getMaxAnosPresupuesto= $getMaxAnosPresupuesto->join('grupo_economicos_empresas','grupo_economicos_empresas.id_company','companies.id');
+            $getMaxAnosPresupuesto= $getMaxAnosPresupuesto->join('usuario_grupoeconomicos','usuario_grupoeconomicos.id_grupoeconomico','grupo_economicos_empresas.id_grupoeconomico');
+            $getMaxAnosPresupuesto= $getMaxAnosPresupuesto->where('grupo_economicos_empresas.id_grupoeconomico',$user->id_group_show);
+            $getMaxAnosPresupuesto= $getMaxAnosPresupuesto->where('usuario_grupoeconomicos.id_users',$user->id);
+            $getMaxAnosPresupuesto= $getMaxAnosPresupuesto->where('in_presupuestos.ano','<>','');
+           
             if($user->id_company_show>0){
                 $datasucursales= $datasucursales->where('grupo_economicos_empresas.id_company',$user->id_company_show);
+                
+                $getMaxAnosResultado= $getMaxAnosResultado->where('grupo_economicos_empresas.id_company',$user->id_company_show);
+                $getMaxAnosPresupuesto= $getMaxAnosPresupuesto->where('grupo_economicos_empresas.id_company',$user->id_company_show);
+
                 $dataEmpresa=company::find($user->id_company_show);
                 $todas=$dataEmpresa->razon_social;
                 $dataEmpresa['logo']=asset('storage/' . $dataEmpresa['logo']);
@@ -203,8 +228,12 @@ class AuthController extends Controller
                 where('usuario_grupoeconomicos.id_users',$user->id)
                 ->where('usuario_grupoeconomicos.id_grupoeconomico',$user->id_group_show)
                 ->first();
+                $grupoEconomicos=grupo_economicos::where('id',$user->id_group_show)->first();
                 if($cantidadCompanies==1){
                   
+                $getMaxAnosResultado= $getMaxAnosResultado->where('grupo_economicos_empresas.id_company',$dataEmpresa->id);
+                $getMaxAnosPresupuesto= $getMaxAnosPresupuesto->where('grupo_economicos_empresas.id_company',$dataEmpresa->id);
+
                     $todas=$dataEmpresa->razon_social;
                     sessiones::insert([
                         'user_id' => $user->id,
@@ -223,7 +252,8 @@ class AuthController extends Controller
                         'opcion' => 'Cambio de compañias Todas',
                         'created_at'=>Carbon::now()
                     ]);
-                $dataEmpresa['logo']='';
+                    
+                $dataEmpresa['logo']=asset('storage/' . $grupoEconomicos['logo']);
                 }
                 
             }
@@ -233,7 +263,9 @@ class AuthController extends Controller
             return  response()->json(['message' => 'Successfully logged out','data'=>$users,'infoClient'=>[
                 'client'=> $dataEmpresa,
                 'name_empresa'=>$todas,
-                'sucursales'=>$datasucursales->get()
+                'sucursales'=>$datasucursales->get(),
+                'anosResultado'=> $getMaxAnosResultado->get(),
+                'anosPresupuesto'=> $getMaxAnosPresupuesto->get()
             ]]);
         } catch (\Exception $e) {
             // Handle other exceptions

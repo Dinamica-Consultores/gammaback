@@ -11,13 +11,15 @@ class grupo_economicos extends Model
     public $fillable = [
         'nombre',
         'id_estudio',
-        'id_moneda'
+        'id_moneda',
+        'logo'
     ];
 
     protected $casts = [
         'nombre' => 'string',
         'id_estudio' => 'integer',
-        'id_moneda'=>'integer'
+        'id_moneda'=>'integer',
+        'logo' => 'string'
     ];
 
     public static array $rules = [

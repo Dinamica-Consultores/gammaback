@@ -51,6 +51,7 @@ class in_balanceAPIController extends AppBaseController
         categorizacion_cts_balances.nivel_3,
               categorizacion_cts_balances.nivel_4,
          categorizacion_cts_balances.nivel_2,
+         categorizacion_cts_balances.nivel_1,
         in_balances.ano,
         in_balances.mes';
         $user =auth()->guard('api')->user();
@@ -97,25 +98,24 @@ class in_balanceAPIController extends AppBaseController
             return $this->sendResponse([], 'In Balances retrieved successfully');  
         }
         
-        $sqlCheck = $sqlCheck->groupByRaw('nivel_2,nivel_3,ano,mes,nivel_4');
+        $sqlCheck = $sqlCheck->groupByRaw('nivel_2,nivel_3,ano,mes,nivel_4,nivel_1');
         $data=$sqlCheck->get();
         
         return $this->sendResponse($data, 'In Balances retrieved successfully');  
     }
     public function showEstadoSitacionPatrim($year,$month,$yearCierre,$monthCierre,$sucursal):JsonResponse
     {
-        $select='CAST(in_balances.saldo_uyu AS DECIMAL(18,3))as amount_uyu,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
+        $select='SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))) as amount_uyu,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
         categorizacion_cts_balances.nivel_3,
         categorizacion_cts_balances.nivel_4,
-        categorizacion_cts_balances.nombre,
         categorizacion_cts_balances.nivel_2,
         categorizacion_cts_balances.nivel_1,
         in_balances.ano,
@@ -219,6 +219,17 @@ class in_balanceAPIController extends AppBaseController
             $sqlCheck2=$sqlCheck2->where('sucursales.id',$sucursal);
             $sqlCheck3=$sqlCheck3->where('sucursales.id',$sucursal);
         }
+        $grupos='categorizacion_cts_balances.nivel_3,
+        categorizacion_cts_balances.nivel_4,
+        categorizacion_cts_balances.nivel_2,
+        categorizacion_cts_balances.nivel_1,
+        in_balances.ano,
+        in_balances.mes,
+        categorizacion_cts_balances.posicion_moneda,
+        categorizacion_cts_balances.posicion_fiscal';
+        $sqlCheck = $sqlCheck->groupByRaw($grupos);
+        $sqlCheck2 = $sqlCheck2->groupByRaw($grupos);
+        $sqlCheck3 = $sqlCheck3->groupByRaw($grupos);
         
         $sqlCheck = $sqlCheck->orderByRaw('categorizacion_cts_balances.id ASC');
         $sqlCheck2 = $sqlCheck2->orderByRaw('categorizacion_cts_balances.id ASC');
@@ -245,18 +256,17 @@ class in_balanceAPIController extends AppBaseController
             return  $this->sendResponse([], 'No tienes Estudios');
         }
         $id_estudios=$user->getIdEstudios2($user->id);
-        $sqlCheck = in_balance::SELECT(DB::raw('CAST(in_balances.saldo_uyu AS DECIMAL(18,3)) as amount_uyu,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
-        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
+        $sqlCheck = in_balance::SELECT(DB::raw('SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))) as amount_uyu,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
+        SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
         categorizacion_cts_balances.nivel_3,
-        categorizacion_cts_balances.nombre,
-              categorizacion_cts_balances.nivel_4,
+        categorizacion_cts_balances.nivel_4,
         categorizacion_cts_balances.nivel_2,
         categorizacion_cts_balances.nivel_1,
         in_balances.ano,
@@ -297,6 +307,16 @@ class in_balanceAPIController extends AppBaseController
             });
             $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
         }
+        $grupos='categorizacion_cts_balances.nivel_3,
+        categorizacion_cts_balances.nivel_4,
+        categorizacion_cts_balances.nivel_2,
+        categorizacion_cts_balances.nivel_1,
+        in_balances.ano,
+        in_balances.mes,
+        categorizacion_cts_balances.posicion_moneda,
+        categorizacion_cts_balances.posicion_fiscal,
+        categorizacion_cts_balances.posicion_socios';
+        $sqlCheck = $sqlCheck->groupByRaw($grupos);
         if ($year > 0 && $month > 0) {
             $dateStart = $year . '-' . $month . '-01';
             $effectiveDate = strtotime("-11 months", strtotime($dateStart)); // returns timestamp

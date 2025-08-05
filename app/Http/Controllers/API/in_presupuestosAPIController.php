@@ -177,7 +177,6 @@ class in_presupuestosAPIController extends AppBaseController
         SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
         SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
         SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
-        CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3)) as ipc,
         clasificacion_cuenta_resuls.clasificacion_punto_equilibrio,
         clasificacion_cuenta_resuls.clasificacion_er,
         clasificacion_cuenta_resuls.grupo,
@@ -220,7 +219,7 @@ class in_presupuestosAPIController extends AppBaseController
             $sqlCheck= $sqlCheck->where('in_presupuestos.mes',$month);
         }
         
-        $sqlCheck= $sqlCheck->groupByRaw('clasificacion_er,ipc,clasificacion_punto_equilibrio, mes,ano,grupo');
+        $sqlCheck= $sqlCheck->groupByRaw('clasificacion_er,clasificacion_punto_equilibrio, mes,ano,grupo');
         $data=$sqlCheck->get();
         
         return $this->sendResponse($data, 'In Presupuesto retrieved successfully');  
@@ -287,17 +286,15 @@ class in_presupuestosAPIController extends AppBaseController
         return $this->sendResponse($data, 'In Presupuesto retrieved successfully');  
     }
     public function showInformERFiscal($year,$month,$yearfiscal,$monthfiscal,$sucursal):JsonResponse{
-        $dataSqls='in_presupuestos.monto_uyu as amount_uyu,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
-        (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
-        CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3)) as ipc,
-        clasificacion_cuenta_resuls.nombre,
+        $dataSqls='SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))) as amount_uyu,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
         clasificacion_cuenta_resuls.origen,
         clasificacion_cuenta_resuls.grupo,
         clasificacion_cuenta_resuls.nivel_1,
@@ -375,6 +372,18 @@ class in_presupuestosAPIController extends AppBaseController
                 $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
                 $sqlCheck2=$sqlCheck2->where('sucursales.id',$sucursal);
             }
+            $OrderSQLData='
+            clasificacion_cuenta_resuls.origen,
+            clasificacion_cuenta_resuls.grupo,
+            clasificacion_cuenta_resuls.nivel_1,
+            clasificacion_cuenta_resuls.nivel_2,
+            clasificacion_cuenta_resuls.nivel_3,
+            clasificacion_cuenta_resuls.clasificacion_ebit_ebitda,
+            clasificacion_cuenta_resuls.clasificacion_er,
+            in_presupuestos.ano,
+            in_presupuestos.mes';
+            $sqlCheck = $sqlCheck->groupByRaw($OrderSQLData);
+            $sqlCheck2 = $sqlCheck2->groupByRaw($OrderSQLData);
             $sqlCheck = $sqlCheck->orderByRaw('DATE(CONCAT (in_presupuestos.ano,"-",in_presupuestos.mes,"-","1")),clasificacion_cuenta_resuls.id ASC');
             $sqlCheck2 = $sqlCheck2->orderByRaw('DATE(CONCAT (in_presupuestos.ano,"-",in_presupuestos.mes,"-","1")),clasificacion_cuenta_resuls.id ASC');
             $yearbusqueda="";
@@ -387,6 +396,7 @@ class in_presupuestosAPIController extends AppBaseController
                 $yearbusqueda=$year-1;
                 $yearbusqueda2=$year-2;
             }
+            
             $dateStart = $yearbusqueda . '-' . $monthsbusqueda . '-01';
             $dateStart2 = $yearbusqueda2 . '-' . $monthsbusqueda . '-01';
             $effectiveDate = strtotime("+11 months", strtotime($dateStart)); 
@@ -472,17 +482,15 @@ class in_presupuestosAPIController extends AppBaseController
             return  $this->sendResponse([], 'No tienes Estudios');
         }
         $id_estudios=$user->getIdEstudios2($user->id);
-        $sqlCheck=in_presupuestos::SELECT(DB::raw('in_presupuestos.monto_uyu as amount_uyu,
-        (in_presupuestos.monto_uyu/tipo_cambios_globals.dolar_compra) as amount_uyu_dolar_compra,
-        (in_presupuestos.monto_uyu/tipo_cambios_globals.dolar_venta) as amount_uyu_dolar_venta,
-        (in_presupuestos.monto_uyu/tipo_cambios_globals.dolar_promedio) as amount_uyu_dolar_promedio,
-        (in_presupuestos.monto_uyu/tipo_cambios_globals.euro_promedio) as amount_uyu_euro_promedio,
-        (in_presupuestos.monto_uyu/tipo_cambios_globals.francosuizo_promedio) as amount_uyu_francosuizo_promedio,
-        (in_presupuestos.monto_uyu/tipo_cambios_globals.ui) as amount_uyu_ui,
-        (in_presupuestos.monto_uyu/tipo_cambios_globals.ipc) as amount_uyu_ipc,
-        (in_presupuestos.monto_uyu/tipo_cambios.ipc_empresa) as amount_uyu_ipc_empresa,
-        CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3)) as ipc, 
-        clasificacion_cuenta_resuls.nombre,
+        $sqlCheck=in_presupuestos::SELECT(DB::raw('SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3)) )as amount_uyu,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
         clasificacion_cuenta_resuls.origen,
         clasificacion_cuenta_resuls.grupo,
         clasificacion_cuenta_resuls.clasificacion_ratios_financ,
@@ -524,6 +532,18 @@ class in_presupuestosAPIController extends AppBaseController
             });
             $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
         }
+        $sqlCheck = $sqlCheck->groupByRaw('
+        clasificacion_cuenta_resuls.origen,
+        clasificacion_cuenta_resuls.grupo,
+        clasificacion_cuenta_resuls.clasificacion_ratios_financ,
+        clasificacion_cuenta_resuls.clasificacion_punto_equilibrio,
+        clasificacion_cuenta_resuls.clasificacion_er,
+        clasificacion_cuenta_resuls.clasificacion_ebit_ebitda,
+        clasificacion_cuenta_resuls.nivel_1,
+        clasificacion_cuenta_resuls.nivel_2,
+        clasificacion_cuenta_resuls.nivel_3,
+        in_presupuestos.ano,
+        in_presupuestos.mes');
         $sqlCheck= $sqlCheck->orderByRaw('DATE(CONCAT (in_presupuestos.ano,"-",in_presupuestos.mes,"-","1")),clasificacion_cuenta_resuls.id ASC');
         if($year>0 && $month>0){
             $dateStart=$year.'-'.$month.'-01';

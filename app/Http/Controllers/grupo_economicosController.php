@@ -10,6 +10,7 @@ use App\Models\grupo_economicos;
 use App\Models\usuario_grupoeconomico;
 use App\Repositories\grupo_economicosRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Flash;
 
 class grupo_economicosController extends AppBaseController
@@ -53,6 +54,14 @@ class grupo_economicosController extends AppBaseController
     {
         $input = $request->all();
         $idEstudios=auth()->user()->getIdEstudios();
+        if($request->hasFile('logo')){
+            $path = $request->file('logo')->store('public/logoredcomercial');
+            $path2 = str_replace('public/', '', $path);
+            $input['logo']=$path2;
+        }else{
+            
+        $input['logo']='';
+        }
         $input['id_estudio']=$idEstudios;
         $grupoEconomicos = $this->grupoEconomicosRepository->create($input);
 
@@ -104,6 +113,14 @@ class grupo_economicosController extends AppBaseController
             Flash::error('Red Comercial No encontrado');
 
             return redirect(route('grupo_economicos.index'));
+        }
+        if($request->hasFile('logo')){
+            $path = $request->file('logo')->store('public/logoredcomercial');
+            $path2 = str_replace('public/', '', $path);
+            $input['logo']=$path2;
+            Storage::delete('public/'.$grupoEconomicos->logo);
+        }else{
+            $input['logo']=$grupoEconomicos->logo;
         }
         $cantidad=grupo_economicos_empresas::join('companies','companies.id','=','grupo_economicos_empresas.id_company')->where('grupo_economicos_empresas.id_grupoeconomico',$id)->where('companies.id_moneda','<>',$input['id_moneda'])->get();
         if(count($cantidad)>0){

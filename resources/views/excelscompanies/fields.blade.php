@@ -20,15 +20,22 @@
 <!-- Id Company Field -->
 <div class="form-group col-sm-6">
     {!! Form::label('id_company', 'Compania Ligada:') !!}
-    {!! Form::select('id_company', $company, null, ['class' => 'form-control custom-select' ,'id' => 'id_company']) !!}
+    {!! Form::select('id_company', $company, null , ['class' => 'form-control custom-select ','multiple'=>'multiple' ,'id' => 'id_company' ,'name' => 'id_company', 'required' => true]) !!}
 </div>
 @push('page_scripts')
     <script type="text/javascript">
         $('#date').datepicker()
         var multipleCancelButton = new Choices('#id_company', {
-       removeItemButton: true,
-       searchResultLimit:5,
-       renderChoiceLimit:5,
+            maxItemCount:1,
+            itemSelectText:'Selecciona un item',  
+            placeholder: true, // ¡Cambia esto a true!
+            placeholderValue: 'Selecciona una compañía...',
+            removeItemButton: true,
+            singleModeForMultiSelect:true,
+            searchResultLimit:5,
+            renderChoiceLimit:5,
         })
+        
+        
     </script>
 @endpush

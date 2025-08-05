@@ -68,7 +68,6 @@ class in_resultadoAPIController extends AppBaseController
         SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
         SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,5))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,5))) as amount_uyu_ipc,
         SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
-        CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3)) as ipc,
         clasificacion_cuenta_resuls.clasificacion_punto_equilibrio,
         clasificacion_cuenta_resuls.grupo,
         clasificacion_cuenta_resuls.origen,
@@ -117,7 +116,7 @@ class in_resultadoAPIController extends AppBaseController
             $sqlCheck = $sqlCheck->where('in_resultados.mes', $month);
         }
 
-        $sqlCheck = $sqlCheck->groupByRaw('clasificacion_er,ipc,clasificacion_punto_equilibrio,in_resultados.mes,in_resultados.ano,cuenta,grupo,origen');
+        $sqlCheck = $sqlCheck->groupByRaw('clasificacion_er,clasificacion_punto_equilibrio,in_resultados.mes,in_resultados.ano,cuenta,grupo,origen');
         $data = $sqlCheck->get();
 
         return $this->sendResponse($data, 'In Resultadoss retrieved successfully');
@@ -190,246 +189,7 @@ class in_resultadoAPIController extends AppBaseController
         return $this->sendResponse($data, 'In Resultadoss retrieved successfully');
     }
 
-    public function showDataGroupEstadosResult($year, $month): JsonResponse
-    {
-        $user = auth()->guard('api')->user();
-        if($user->getContainestudios2($user->id)){
-            return  $this->sendResponse([], 'No tienes Estudios');
-        }
-        $id_estudios=$user->getIdEstudios2($user->id);
-
-        $resultados = DB::table('gammadata.clasificacion_cuenta_resuls as ccr')
-            ->join('gammadata.in_resultados as ir', 'ir.cuenta_master', '=', 'ccr.cuenta')
-            ->join('excelscompanies', 'excelscompanies.id', 'ir.id_excel')
-            ->join('companies', 'companies.id', 'excelscompanies.id_company')
-            ->select(
-                'ccr.grupo',
-                'ccr.nivel_1',
-                'ccr.origen',
-                'ccr.nombre',
-                'ir.monto_uyu',
-                'ir.monto_uyu_sinajuste_corriente',
-                'ir.monto_enuyu_sinajuste_corriente',
-                'ir.ano',
-                'ir.mes'
-            )
-            ->where('ir.ano', $year);
-
-        if ($user->is_user) {
-            $resultados = $resultados->join('client_users', 'client_users.id_user_client', 'companies.id_user');
-            $resultados = $resultados->where('client_users.id_user', $user->id);
-        } else {
-            $resultados = $resultados->where('companies.id_user', $user->id);
-        }
-
-        if ($month > 0) {
-            $resultados = $resultados->where('ir.mes', $month);
-        }
-
-        $resultados = $resultados->orderBy('ccr.grupo')
-            ->get();
-
-        $objetoResultados = self::procesarDatos($resultados);
-
-        $resultadosLast = DB::table('gammadata.clasificacion_cuenta_resuls as ccr')
-            ->join('gammadata.in_resultados as ir', 'ir.cuenta_master', '=', 'ccr.cuenta')
-            ->join('excelscompanies', 'excelscompanies.id', 'ir.id_excel')
-            ->join('companies', 'companies.id', 'excelscompanies.id_company')
-            ->select(
-                'ccr.grupo',
-                'ccr.nivel_1',
-                'ccr.origen',
-                'ccr.nombre',
-                'ir.monto_uyu',
-                'ir.monto_uyu_sinajuste_corriente',
-                'ir.monto_enuyu_sinajuste_corriente',
-                'ir.ano',
-                'ir.mes'
-            )
-            ->where('ir.ano', $year - 1);
-
-        if ($user->is_user) {
-            $resultadosLast = $resultadosLast->join('client_users', 'client_users.id_user_client', 'companies.id_user');
-            $resultadosLast = $resultadosLast->where('client_users.id_user', $user->id);
-        } else {
-            $resultadosLast = $resultadosLast->where('companies.id_user', $user->id);
-        }
-
-        if ($month > 0) {
-            $resultadosLast = $resultadosLast->where('ir.mes', $month);
-        }
-
-        $resultadosLast = $resultadosLast->orderBy('ccr.grupo')
-            ->get();
-
-        $objetoResultadosLast = self::procesarDatos($resultadosLast);
-
-
-
-        $resultadosPresupuestos = DB::table('gammadata.clasificacion_cuenta_resuls as ccr')
-            ->join('gammadata.in_presupuestos as pr', 'pr.cuenta_master', '=', 'ccr.cuenta')
-            ->join('excelscompanies', 'excelscompanies.id', 'pr.id_excel')
-            ->join('companies', 'companies.id', 'excelscompanies.id_company')
-            ->select(
-                'ccr.grupo',
-                'ccr.nivel_1',
-                'ccr.origen',
-                'ccr.nombre',
-                'pr.monto_uyu',
-                'pr.monto_uyu_sinajuste_corriente',
-                'pr.monto_enuyu_sinajuste_corriente',
-                'pr.ano',
-                'pr.mes'
-            )
-            ->where('pr.ano', $year);
-
-        if ($user->is_user) {
-            $resultadosPresupuestos = $resultadosPresupuestos->join('client_users', 'client_users.id_user_client', 'companies.id_user');
-            $resultadosPresupuestos = $resultadosPresupuestos->where('client_users.id_user', $user->id);
-        } else {
-            $resultadosPresupuestos = $resultadosPresupuestos->where('companies.id_user', $user->id);
-        }
-
-        if ($month > 0) {
-            $resultadosPresupuestos = $resultadosPresupuestos->where('pr.mes', $month);
-        }
-
-        $resultadosPresupuestos = $resultadosPresupuestos->orderBy('ccr.grupo')
-            ->get();
-
-        $objetoResultadosPresupuesto = self::procesarDatos($resultadosPresupuestos);
-
-
-        $resultadosAcumuladoActual = DB::table('gammadata.clasificacion_cuenta_resuls as ccr')
-            ->join('gammadata.in_resultados as ir', 'ir.cuenta_master', '=', 'ccr.cuenta')
-            ->join('excelscompanies', 'excelscompanies.id', 'ir.id_excel')
-            ->join('companies', 'companies.id', 'excelscompanies.id_company')
-            ->select(
-                'ccr.grupo',
-                'ccr.nivel_1',
-                'ccr.origen',
-                'ccr.nombre',
-                'ir.monto_uyu',
-                'ir.monto_uyu_sinajuste_corriente',
-                'ir.monto_enuyu_sinajuste_corriente',
-                'ir.ano',
-                'ir.mes'
-            )
-            ->where('ir.ano', $year)
-            ->orderBy('ccr.grupo');
-        if ($user->is_user) {
-            $resultadosAcumuladoActual = $resultadosAcumuladoActual->join('client_users', 'client_users.id_user_client', 'companies.id_user');
-            $resultadosAcumuladoActual = $resultadosAcumuladoActual->where('client_users.id_user', $user->id);
-        } else {
-            $resultadosAcumuladoActual = $resultadosAcumuladoActual->where('companies.id_user', $user->id);
-        }
-        $resultadosAcumuladoActual=$resultadosAcumuladoActual ->get();
-       
-        $resultadosAcumuladoAnterior = DB::table('gammadata.clasificacion_cuenta_resuls as ccr')
-            ->join('gammadata.in_resultados as ir', 'ir.cuenta_master', '=', 'ccr.cuenta')
-            ->join('excelscompanies', 'excelscompanies.id', 'ir.id_excel')
-            ->join('companies', 'companies.id', 'excelscompanies.id_company')
-            ->select(
-                'ccr.grupo',
-                'ccr.nivel_1',
-                'ccr.origen',
-                'ccr.nombre',
-                'ir.monto_uyu',
-                'ir.monto_uyu_sinajuste_corriente',
-                'ir.monto_enuyu_sinajuste_corriente',
-                'ir.ano',
-                'ir.mes'
-            )
-            ->where('ir.ano', $year - 1)
-            ->orderBy('ccr.grupo');
-
-        if ($user->is_user) {
-            $resultadosAcumuladoAnterior = $resultadosAcumuladoAnterior->join('client_users', 'client_users.id_user_client', 'companies.id_user');
-            $resultadosAcumuladoAnterior = $resultadosAcumuladoAnterior->where('client_users.id_user', $user->id);
-        } else {
-            $resultadosAcumuladoAnterior = $resultadosAcumuladoAnterior->where('companies.id_user', $user->id);
-        }
-        $resultadosAcumuladoAnterior=$resultadosAcumuladoAnterior  ->get();
-      
-        $resultadosAcumuladoPresupuestos = DB::table('gammadata.clasificacion_cuenta_resuls as ccr')
-            ->join('gammadata.in_presupuestos as pr', 'pr.cuenta_master', '=', 'ccr.cuenta')
-            ->join('excelscompanies', 'excelscompanies.id', 'pr.id_excel')
-            ->join('companies', 'companies.id', 'excelscompanies.id_company')
-            ->select(
-                'ccr.grupo',
-                'ccr.nivel_1',
-                'ccr.origen',
-                'ccr.nombre',
-                'pr.monto_uyu',
-                'pr.monto_uyu_sinajuste_corriente',
-                'pr.monto_enuyu_sinajuste_corriente',
-                'pr.ano',
-                'pr.mes'
-            )
-            ->where('pr.ano', $year)
-            ->orderBy('ccr.grupo');
-
-        if ($user->is_user) {
-            $resultadosAcumuladoPresupuestos = $resultadosAcumuladoPresupuestos->join('client_users', 'client_users.id_user_client', 'companies.id_user');
-            $resultadosAcumuladoPresupuestos = $resultadosAcumuladoPresupuestos->where('client_users.id_user', $user->id);
-        } else {
-            $resultadosAcumuladoPresupuestos = $resultadosAcumuladoPresupuestos->where('companies.id_user', $user->id);
-        }
-
-        $resultadosAcumuladoPresupuestos= $resultadosAcumuladoPresupuestos->get();
-        $objetoAcumuladoActual = self::procesarDatos($resultadosAcumuladoActual);
-        $objetoAcumuladoAnterior = self::procesarDatos($resultadosAcumuladoAnterior);
-        $objetoAcumuladoPresupuestos = self::procesarDatos($resultadosAcumuladoPresupuestos);
-
-
-        $response = [
-            'anioactual' => $objetoResultados,
-            'anioanterior' => $objetoResultadosLast,
-            'presupuestos' => $objetoResultadosPresupuesto,
-            'acumuladoanioactual' => $objetoAcumuladoActual,
-            'acumuladoanioanterior' => $objetoAcumuladoAnterior,
-            'acumuladopresupuestos' => $objetoAcumuladoPresupuestos
-        ];
-
-        return $this->sendResponse($response, 'In Resultadoss retrieved successfully');
-
-    }
-
-    static function procesarDatos($collection)
-    {
-        return $collection->groupBy('grupo')->map(function ($grupo) {
-            $nombreGrupo = $grupo->first()->grupo;
-
-            $datosNivel1 = $grupo->groupBy('nivel_1')->map(function ($nivel) {
-                $nombreNivel = $nivel->first()->nivel_1;
-
-                $datosNombre = $nivel->groupBy('nombre')->map(function ($nombre) {
-                    $sumaDatos = $nombre->reduce(function ($carry, $item) {
-                        // Sumar los valores específicos
-                        $carry['monto_uyu'] += intval($item->monto_uyu) ?? 0;
-                        $carry['monto_uyu_sinajuste_corriente'] += intval($item->monto_uyu_sinajuste_corriente) ?? 0;
-                        $carry['monto_enuyu_sinajuste_corriente'] += intval($item->monto_enuyu_sinajuste_corriente) ?? 0;
-                        return $carry;
-                    }, ['monto_uyu' => 0, 'monto_uyu_sinajuste_corriente' => 0, 'monto_enuyu_sinajuste_corriente' => 0]);
-
-                    return [
-                        'nombre' => $nombre->first()->nombre,
-                        'datos' => $sumaDatos
-                    ];
-                })->values();
-
-                return [
-                    'nombre' => $nombreNivel,
-                    'origen' => $nivel->first()->origen,
-                    'datos' => $datosNombre
-                ];
-            })->values();
-            return [
-                'nombre' => $nombreGrupo,
-                'datos' => $datosNivel1
-            ];
-        })->values();
-    }
+  
     public function showEstadisticas($sucursal): JsonResponse
     {
         $user = auth()->guard('api')->user();
@@ -564,7 +324,6 @@ class in_resultadoAPIController extends AppBaseController
         SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
         SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
         CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3)) as ipc,
-        clasificacion_cuenta_resuls.nombre,
         clasificacion_cuenta_resuls.origen,
         clasificacion_cuenta_resuls.grupo,
         clasificacion_cuenta_resuls.nivel_1,
@@ -610,7 +369,6 @@ class in_resultadoAPIController extends AppBaseController
         }
        $sqlCheck= $sqlCheck->orderByRaw('clasificacion_cuenta_resuls.id ASC');
         $sqlCheck = $sqlCheck->groupByRaw('
-        clasificacion_cuenta_resuls.nombre,
         clasificacion_cuenta_resuls.origen,
         clasificacion_cuenta_resuls.grupo,
         clasificacion_cuenta_resuls.nivel_1,
@@ -700,17 +458,15 @@ class in_resultadoAPIController extends AppBaseController
         return $this->sendResponse($data, 'In Resultadoss retrieved successfully');
     }
     public function showInformERFiscal($year,$month,$yearfiscal,$monthfiscal,$sucursal):JsonResponse{
-        $dataSqls='in_resultados.monto_uyu as amount_uyu,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
-        CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3)) as ipc,
-        clasificacion_cuenta_resuls.nombre,
+        $dataSqls='SUM(in_resultados.monto_uyu) as amount_uyu,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
         clasificacion_cuenta_resuls.origen,
         clasificacion_cuenta_resuls.grupo,
         clasificacion_cuenta_resuls.nivel_1,
@@ -768,7 +524,7 @@ class in_resultadoAPIController extends AppBaseController
             if($user->id_company_show>0){
                 $sqlCheck= $sqlCheck->where('grupo_economicos_empresas.id_company',$user->id_company_show);
             }
-    $sqlCheck2= $sqlCheck2->join('grupo_economicos_empresas','grupo_economicos_empresas.id_company','companies.id');
+            $sqlCheck2= $sqlCheck2->join('grupo_economicos_empresas','grupo_economicos_empresas.id_company','companies.id');
             $sqlCheck2= $sqlCheck2->join('usuario_grupoeconomicos','usuario_grupoeconomicos.id_grupoeconomico','grupo_economicos_empresas.id_grupoeconomico');
             $sqlCheck2= $sqlCheck2->where('grupo_economicos_empresas.id_grupoeconomico',$user->id_group_show);
             $sqlCheck2= $sqlCheck2->where('usuario_grupoeconomicos.id_users',$user->id);
@@ -788,6 +544,26 @@ class in_resultadoAPIController extends AppBaseController
                 $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
                 $sqlCheck2=$sqlCheck2->where('sucursales.id',$sucursal);
             }
+            $sqlCheck2 = $sqlCheck2->groupByRaw('
+            clasificacion_cuenta_resuls.origen,
+        clasificacion_cuenta_resuls.grupo,
+        clasificacion_cuenta_resuls.nivel_1,
+        clasificacion_cuenta_resuls.nivel_2,
+        clasificacion_cuenta_resuls.nivel_3,
+        clasificacion_cuenta_resuls.clasificacion_er,
+        clasificacion_cuenta_resuls.clasificacion_ebit_ebitda,
+        in_resultados.ano,
+        in_resultados.mes');
+            $sqlCheck = $sqlCheck->groupByRaw('
+            clasificacion_cuenta_resuls.origen,
+        clasificacion_cuenta_resuls.grupo,
+        clasificacion_cuenta_resuls.nivel_1,
+        clasificacion_cuenta_resuls.nivel_2,
+        clasificacion_cuenta_resuls.nivel_3,
+        clasificacion_cuenta_resuls.clasificacion_er,
+        clasificacion_cuenta_resuls.clasificacion_ebit_ebitda,
+        in_resultados.ano,
+        in_resultados.mes');
             $sqlCheck = $sqlCheck->orderByRaw('DATE(CONCAT (in_resultados.ano,"-",in_resultados.mes,"-","1")),clasificacion_cuenta_resuls.id ASC');
             $sqlCheck2 = $sqlCheck2->orderByRaw('DATE(CONCAT (in_resultados.ano,"-",in_resultados.mes,"-","1")),clasificacion_cuenta_resuls.id ASC');
             $yearbusqueda="";
@@ -956,17 +732,15 @@ class in_resultadoAPIController extends AppBaseController
             return  $this->sendResponse([], 'No tienes Estudios');
         }
         $id_estudios=$user->getIdEstudios2($user->id);
-        $sqlCheck = in_resultado::SELECT(DB::raw('CAST(in_resultados.monto_uyu AS DECIMAL(18,3)) as amount_uyu,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
-        CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3)) as ipc,
-        clasificacion_cuenta_resuls.nombre,
+        $sqlCheck = in_resultado::SELECT(DB::raw('SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3)) )as amount_uyu,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
         clasificacion_cuenta_resuls.origen,
         clasificacion_cuenta_resuls.grupo,
         clasificacion_cuenta_resuls.clasificacion_ratios_financ,
@@ -1012,6 +786,18 @@ class in_resultadoAPIController extends AppBaseController
             });
             $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
         }
+        $sqlCheck = $sqlCheck->groupByRaw('
+        clasificacion_cuenta_resuls.origen,
+        clasificacion_cuenta_resuls.grupo,
+        clasificacion_cuenta_resuls.clasificacion_ratios_financ,
+        clasificacion_cuenta_resuls.clasificacion_punto_equilibrio,
+        clasificacion_cuenta_resuls.clasificacion_er,
+        clasificacion_cuenta_resuls.clasificacion_ebit_ebitda,
+        clasificacion_cuenta_resuls.nivel_1,
+        clasificacion_cuenta_resuls.nivel_2,
+        clasificacion_cuenta_resuls.nivel_3,
+        in_resultados.ano,
+        in_resultados.mes');
         $sqlCheck = $sqlCheck->orderByRaw('DATE(CONCAT (in_resultados.ano,"-",in_resultados.mes,"-","1")),clasificacion_cuenta_resuls.id ASC');
         if ($year > 0 && $month > 0) {
             $dateStart = $year . '-' . $month . '-01';
@@ -1033,17 +819,15 @@ class in_resultadoAPIController extends AppBaseController
             return  $this->sendResponse([], 'No tienes Estudios');
         }
         $id_estudios=$user->getIdEstudios2($user->id);
-        $sqlCheck = in_resultado::SELECT(DB::raw('CAST(in_resultados.monto_uyu AS DECIMAL(18,3)) as amount_uyu,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
-        (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
-        CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3)) as ipc,
-        clasificacion_cuenta_resuls.nombre,
+        $sqlCheck = in_resultado::SELECT(DB::raw('SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))) as amount_uyu,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
         clasificacion_cuenta_resuls.origen,
         clasificacion_cuenta_resuls.grupo,
         clasificacion_cuenta_resuls.nivel_1,
@@ -1085,6 +869,15 @@ class in_resultadoAPIController extends AppBaseController
             });
             $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
         }
+        $sqlCheck = $sqlCheck->groupByRaw('
+        clasificacion_cuenta_resuls.origen,
+        clasificacion_cuenta_resuls.grupo,
+        clasificacion_cuenta_resuls.nivel_1,
+        clasificacion_cuenta_resuls.nivel_2,
+        clasificacion_cuenta_resuls.nivel_3,
+        clasificacion_cuenta_resuls.clasificacion_punto_equilibrio,
+        in_resultados.ano,
+        in_resultados.mes');
         $sqlCheck = $sqlCheck->orderByRaw('DATE(CONCAT (in_resultados.ano,"-",in_resultados.mes,"-","1")),clasificacion_cuenta_resuls.id ASC');
         if ($year > 0 && $month > 0) {
             $dateStart = $year . '-' . $month . '-01';

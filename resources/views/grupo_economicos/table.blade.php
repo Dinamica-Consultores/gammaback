@@ -4,6 +4,8 @@
             <thead>
             <tr>
                 <th>Nombre</th>
+                
+                <th>Logo</th>
                 <th colspan="3">Action</th>
             </tr>
             </thead>
@@ -11,6 +13,8 @@
             @foreach($grupoEconomicos as $grupoEconomicoss)
                 <tr>
                     <td>{{ $grupoEconomicoss->nombre }}</td>
+                    
+                    <td><img src="{{ asset('storage/'.$grupoEconomicoss->logo) }}" style="width:50px;height:50px;"/></td>
                     <td  style="width: 120px">
                         {!! Form::open(['route' => ['grupo_economicos.destroy', $grupoEconomicoss->id], 'method' => 'delete']) !!}
                         <div class='btn-group'>

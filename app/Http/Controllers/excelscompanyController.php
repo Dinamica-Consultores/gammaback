@@ -443,8 +443,8 @@ class excelscompanyController extends AppBaseController
         $in_ventasDelete=in_ventas::join('excelscompanies','excelscompanies.id','in_ventas.id_excel')->where('excelscompanies.id_company',$idExcelCompany)->delete();
         $categorizacion_cts_balanceDelete=categorizacion_cts_balance::join('excelscompanies','excelscompanies.id','categorizacion_cts_balances.id_excel')->where('excelscompanies.id_company',$idExcelCompany)->delete();
         $in_balanceDelete=in_balance::join('excelscompanies','excelscompanies.id','in_balances.id_excel')->where('excelscompanies.id_company',$idExcelCompany)->delete();
-        $excelCompanye=excelscompany::where('id_company',$idExcelCompany)->delete();
         $controldecuentas=controlcuentas::join('excelscompanies','excelscompanies.id','controlcuentas.id_excel')->where('excelscompanies.id_company',$idExcelCompany)->delete();
+        $excelCompanye=excelscompany::where('id_company',$idExcelCompany)->delete();
     }
     /**
      * Remove the specified excelscompany from storage.
