@@ -297,6 +297,7 @@ class in_presupuestosAPIController extends AppBaseController
         SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
         clasificacion_cuenta_resuls.origen,
         clasificacion_cuenta_resuls.grupo,
+        clasificacion_cuenta_resuls.clasificacion_cuenta_juridica_legal,
         clasificacion_cuenta_resuls.nivel_1,
         clasificacion_cuenta_resuls.nivel_2,
         clasificacion_cuenta_resuls.nivel_3,
@@ -379,6 +380,7 @@ class in_presupuestosAPIController extends AppBaseController
             clasificacion_cuenta_resuls.nivel_2,
             clasificacion_cuenta_resuls.nivel_3,
             clasificacion_cuenta_resuls.clasificacion_ebit_ebitda,
+            clasificacion_cuenta_juridica_legal,
             clasificacion_cuenta_resuls.clasificacion_er,
             in_presupuestos.ano,
             in_presupuestos.mes';
