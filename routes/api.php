@@ -47,10 +47,11 @@ Route::controller(App\Http\Controllers\API\in_balanceAPIController::class)->grou
 });
 Route::controller(App\Http\Controllers\API\in_resultadoAPIController::class)->group(function () {
     Route::prefix('in_resultados')->group(function () {
+        
+    Route::post('/datoPostModal', 'post_modal');
     Route::get('/fullYear/{year}/{sucursal}', 'showDataFullYear');
     Route::get('/{year}/{month}/{sucursal}', 'showDataGroup');
     Route::get('/full/{year}/{month}/{sucursal}', 'showDataFull');
-    
     Route::get('/showInformER/{year}/{month}/{sucursal}', 'showInformER');
     Route::get('/showInformERFiscal/{year}/{month}/{yearfiscal}/{monthfiscal}/{sucursal}', 'showInformERFiscal');
     Route::get('/showDataEvolutivo/{year}/{month}/{sucursal}', 'showDataErEvolutivo');
@@ -65,6 +66,7 @@ Route::controller(App\Http\Controllers\API\in_resultadoAPIController::class)->gr
 });
 Route::controller(App\Http\Controllers\API\in_presupuestosAPIController::class)->group(function () {
     Route::prefix('in_presupuestos')->group(function () {
+        Route::post('/datoPostModal', 'post_modal');
     Route::get('/showDataLegal/{year}/{month}/{sucursal}', 'showDataLegal');
     Route::get('/{year}/{month}/{sucursal}', 'showDataGroup');
     Route::get('/full/{year}/{month}/{sucursal}', 'showDataFull');
@@ -141,4 +143,7 @@ Route::resource('bitacora_enviosemails', App\Http\Controllers\API\bitacora_envio
     ->except(['create', 'edit']);
 
 Route::resource('tipo_cambios_globals', App\Http\Controllers\API\tipo_cambios_globalAPIController::class)
+    ->except(['create', 'edit']);
+
+Route::resource('compromiso_entregas', App\Http\Controllers\API\compromiso_entregaAPIController::class)
     ->except(['create', 'edit']);

@@ -121,6 +121,70 @@ class in_resultadoAPIController extends AppBaseController
 
         return $this->sendResponse($data, 'In Resultadoss retrieved successfully');
     }
+    public function post_modal(Request $request){
+        $input=$request->all();
+        $user = auth()->guard('api')->user();
+        if(!isset($user->id)){
+            return  $this->sendResponse([], 'No tienes Estudios');
+        }
+        $id_estudios=$user->getIdEstudios2($user->id);
+        $sqlCheck = in_resultado::SELECT(DB::raw('SUM(in_resultados.monto_uyu) as amount_uyu,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
+        SUM(CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
+        clasificacion_cuenta_resuls.nombre,
+        clasificacion_cuenta_resuls.cuenta,
+        clasificacion_cuenta_resuls.origen'))
+            ->join('excelscompanies', 'excelscompanies.id', 'in_resultados.id_excel')
+            ->join('companies', 'companies.id', 'excelscompanies.id_company')
+            ->leftJoin('tipo_cambios', function($joins)
+            {
+                $joins->on('tipo_cambios.mes','=','in_resultados.mes')
+                ->on('tipo_cambios.ano','=','in_resultados.ano')
+                ->on('tipo_cambios.id_excel','=','in_resultados.id_excel');
+            })  ->leftjoin('tipo_cambios_globals',function($join){
+                $join->on("tipo_cambios_globals.id_estudio","=","companies.id_estudio")
+                ->on('tipo_cambios_globals.mes','=','in_resultados.mes')
+                ->on('tipo_cambios_globals.ano','=','in_resultados.ano');
+            })
+            ->join('clasificacion_cuenta_resuls',function($join){
+                $join->on("clasificacion_cuenta_resuls.id_excel","=","in_resultados.id_excel")
+                    ->on("clasificacion_cuenta_resuls.cuenta","=","in_resultados.cuenta_master");
+            });
+            $sqlCheck= $sqlCheck->join('grupo_economicos_empresas','grupo_economicos_empresas.id_company','companies.id');
+            $sqlCheck= $sqlCheck->join('usuario_grupoeconomicos','usuario_grupoeconomicos.id_grupoeconomico','grupo_economicos_empresas.id_grupoeconomico');
+            $sqlCheck= $sqlCheck->where('grupo_economicos_empresas.id_grupoeconomico',$user->id_group_show);
+            $sqlCheck= $sqlCheck->where('usuario_grupoeconomicos.id_users',$user->id);
+            if($user->id_company_show>0){
+                $sqlCheck= $sqlCheck->where('grupo_economicos_empresas.id_company',$user->id_company_show);
+            }
+
+        if($input['sucursal']>0){
+            $sqlCheck=$sqlCheck->join('sucursales',function($join){
+                $join->on("sucursales.id_excel","=","in_resultados.id_excel")
+                    ->on("sucursales.nombre","=","in_resultados.sucursal");
+            });
+            $sqlCheck=$sqlCheck->where('sucursales.id',$input['sucursal']);
+        }
+
+        
+        $sqlCheck = $sqlCheck->where('in_resultados.ano', $input['ano']);
+        $sqlCheck = $sqlCheck->where('in_resultados.mes', $input['mes']);
+        $textoBusqueda=$input['tipo'];
+        $nombre=$input['nombre'];
+        
+        $sqlCheck = $sqlCheck->where('clasificacion_cuenta_resuls.'.$textoBusqueda, $nombre);
+        $sqlCheck = $sqlCheck->groupByRaw('nombre,cuenta,origen');
+        
+        $data = $sqlCheck->get();
+
+        return $this->sendResponse($data, 'In Resultadoss retrieved successfully');
+    }
     public function showDataGroupEbitda($year, $month,$sucursal): JsonResponse
     {
         $user = auth()->guard('api')->user();

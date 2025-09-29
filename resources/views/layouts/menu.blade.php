@@ -35,6 +35,13 @@
     </a>
 </li>
 
+<li class="nav-item">
+    <a href="{{ route('compromiso_entregas.index') }}" class="nav-link {{ Request::is('compromiso_entregas*') ? 'active' : '' }}">
+        <i class="nav-icon fas  fa-handshake"></i>
+        <p>Compromiso Entregas</p>
+    </a>
+</li>
+
 <li class="nav-item menu-is-opening ">
     <a href="#" class="nav-link">
             <i class="nav-icon fas  fa-plus"></i>

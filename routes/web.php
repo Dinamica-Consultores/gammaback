@@ -67,4 +67,8 @@ Route::resource('sessiones', App\Http\Controllers\sessionesController::class);
 Route::post('/tipo_cambios_globals/uploadfile', [ App\Http\Controllers\tipo_cambios_globalController::class, 'uploadfile'])->name('tipo_cambios_global.uploadfile');
 
 Route::resource('tipo_cambios_globals', App\Http\Controllers\tipo_cambios_globalController::class);
+Route::resource('compromiso_entregas', App\Http\Controllers\compromiso_entregaController::class);
+Route::post('/compromiso_entregas/procesar-datos', [App\Http\Controllers\compromiso_entregaController::class, 'procesar'])->name('compromiso.registro');
+
 });
+Route::get('/getAllCompromisoEntregar', [App\Http\Controllers\compromiso_entregaController::class, 'getAllCompromisoEntregar']);
