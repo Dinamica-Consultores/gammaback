@@ -40,10 +40,10 @@ class compromiso_entrega extends Model
         return $this->hasOne(company::class,'id','id_company');
     }
     public function user() {
-        return $this->hasOne(user::class,'id','usuario');
+        return $this->hasOne(User::class,'id','usuario');
     }
     public function userEntrega() {
-        return $this->hasOne(user::class,'id','usuario_entregado');
+        return $this->hasOne(User::class,'id','usuario_entregado');
     }
     
 }
