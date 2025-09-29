@@ -22,7 +22,7 @@
                         <div class='btn-group'>
                            <a  id="abrirModalJQuery"
                            data-company-id="{{ $excelscompany->company->id }}"
-                               class='btn btn-default btn-xs'>
+                               class='btn btn-default btn-xs' onclick="realizaraccion(this)">
                                <i class="far fa-clock"></i>
                             </a>
                             <a href="{{ route('excelscompanies.show', [$excelscompany->id]) }}"
@@ -108,8 +108,10 @@ if (myModalInstance) {
           }
     })
 
-        $('#abrirModalJQuery').on('click', function() {
-            var companyID = $(this).data('company-id');
+    
+    });
+    function realizaraccion(dato){
+            var companyID = $(dato).data('company-id');
             $.ajax({
         url: '/getAllCompromisoEntregar', 
         type: 'GET',
@@ -166,11 +168,10 @@ if (myModalInstance) {
                     },
                 
                 error: function(xhr, status, error) {
-                    alert('No se pudieron cargar los datos de la empresa.');
+                    alert('No se pudieron cargar los datos del compromiso.');
                 }
             });
-        });
-    });
+        }
     </script>
 @endpush
 
