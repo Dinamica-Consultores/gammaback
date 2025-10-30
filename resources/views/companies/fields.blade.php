@@ -52,12 +52,16 @@
     {!! Form::label('logo', 'Logo:') !!}
     {!! Form::file('logo', $attributes = array(),['class' => 'form-control']) !!}
 </div>
-
+<div class="form-group col-sm-6">
+    {!! Form::label('destinatario_documentos', 'Destinatarios documentos:') !!}
+    {!! Form::textarea('destinatario_documentos', null, ['class' => 'form-control', 'rows' => 2]) !!}
+</div>
 <!-- Campo Field -->
 <div class="form-group col-sm-6">
     {!! Form::label('campo', 'Información de cliente:') !!}
-    {!! Form::textarea('campo', null, ['class' => 'form-control']) !!}
+    {!! Form::textarea('campo', null, ['class' => 'form-control', 'rows' => 3]) !!}
 </div>
+
 @push('page_scripts')
 <script>
     

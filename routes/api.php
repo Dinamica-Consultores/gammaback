@@ -87,63 +87,59 @@ Route::controller(App\Http\Controllers\API\grupo_economicos_empresasAPIControlle
     Route::get('/', 'getAllCompanies');
     });
 });
-
+Route::controller(App\Http\Controllers\API\tipo_documentoAPIController::class)->group(function () {
+    Route::prefix('tipo_documentos')->group(function () {
+        Route::get('/', 'getAllTipoDocumentos');
+    });
+});
+Route::controller(App\Http\Controllers\API\documento_companiaAPIController::class)->group(function () {
+    Route::prefix('documento_companias')->group(function () {
+    Route::get('/', 'getAllDocumentosCompanias');
+    Route::get('/download/{id}', [App\Http\Controllers\API\documento_companiaAPIController::class, 'download']);
+    });
+});
 Route::post('/fileupload', [App\Http\Controllers\API\UserAPIController::class, 'uploadfile']);
 Route::resource('users', App\Http\Controllers\API\UserAPIController::class)
     ->except(['create', 'edit']);
-
 Route::resource('companies', App\Http\Controllers\API\CompanyAPIController::class)
     ->except(['create', 'edit']);
-
 Route::resource('excelscompanies', App\Http\Controllers\API\excelscompanyAPIController::class)
     ->except(['create', 'edit']);
-
 Route::resource('categorizacion_cts_balances', App\Http\Controllers\API\categorizacion_cts_balanceAPIController::class)
     ->except(['create', 'edit']);
-
 Route::resource('clasificacion_cuenta_resuls', App\Http\Controllers\API\clasificacion_cuenta_resulAPIController::class)
     ->except(['create', 'edit']);
-
 Route::resource('client_users', App\Http\Controllers\API\client_userAPIController::class)
     ->except(['create', 'edit']);
-
 Route::resource('setup_analises', App\Http\Controllers\API\setup_analisisAPIController::class)
     ->except(['create', 'edit']);
-
 Route::resource('setup_ers', App\Http\Controllers\API\setup_erAPIController::class)
     ->except(['create', 'edit']);
-
 Route::resource('sucursales', App\Http\Controllers\API\sucursalesAPIController::class)
     ->except(['create', 'edit']);
-
 Route::resource('super_clients', App\Http\Controllers\API\super_clientAPIController::class)
     ->except(['create', 'edit']);
-
-
-
 Route::resource('estudios', App\Http\Controllers\API\estudiosAPIController::class)
     ->except(['create', 'edit']);
-
 Route::resource('estudios_usuarios', App\Http\Controllers\API\estudios_usuariosAPIController::class)
     ->except(['create', 'edit']);
-
 Route::resource('companies', App\Http\Controllers\API\companyAPIController::class)
     ->except(['create', 'edit']);
-
 Route::resource('grupo_economicos', App\Http\Controllers\API\grupo_economicosAPIController::class)
     ->except(['create', 'edit']);
-
 Route::resource('usuario_grupoeconomicos', App\Http\Controllers\API\usuario_grupoeconomicoAPIController::class)
     ->except(['create', 'edit']);
-
 Route::resource('bitacora_hitos', App\Http\Controllers\API\bitacora_hitosAPIController::class)
     ->except(['create', 'edit']);
-
 Route::resource('bitacora_enviosemails', App\Http\Controllers\API\bitacora_enviosemailAPIController::class)
     ->except(['create', 'edit']);
-
 Route::resource('tipo_cambios_globals', App\Http\Controllers\API\tipo_cambios_globalAPIController::class)
     ->except(['create', 'edit']);
-
 Route::resource('compromiso_entregas', App\Http\Controllers\API\compromiso_entregaAPIController::class)
+    ->except(['create', 'edit']);
+/*Route::resource('tipo_documentos', App\Http\Controllers\API\tipo_documentoAPIController::class)
+    ->except(['create', 'edit']);
+Route::resource('documento_companias', App\Http\Controllers\API\documento_companiaAPIController::class)
+    ->except(['create', 'edit']);*/
+Route::resource('bitacoras_envios_documentos', App\Http\Controllers\API\bitacoras_envios_documentoAPIController::class)
     ->except(['create', 'edit']);

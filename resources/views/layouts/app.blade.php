@@ -44,6 +44,9 @@
         -webkit-text-fill-color: rgb(0,0,0) !important;
         font-weight:bolder;
 }
+.nav-sidebar .menu-open > .nav-treeview {
+    padding: 15px;
+}
     </style>
 </head>
 @if(!isset(Auth::user()->name ))

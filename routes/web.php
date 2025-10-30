@@ -72,3 +72,7 @@ Route::post('/compromiso_entregas/procesar-datos', [App\Http\Controllers\comprom
 
 });
 Route::get('/getAllCompromisoEntregar', [App\Http\Controllers\compromiso_entregaController::class, 'getAllCompromisoEntregar']);
+Route::get('documentos/descargar/{id}', [\App\Http\Controllers\documento_companiaController::class, 'download'])->name('documento_companias.download');
+Route::resource('tipo_documentos', App\Http\Controllers\tipo_documentoController::class);
+Route::resource('documento_companias', App\Http\Controllers\documento_companiaController::class);
+Route::resource('bitacoras_envios_documentos', App\Http\Controllers\bitacoras_envios_documentoController::class);

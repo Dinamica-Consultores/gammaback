@@ -21,7 +21,8 @@ class company extends Model
         'mes',
         'ano',
         'id_estudio',
-        'id_moneda'
+        'id_moneda',
+        'destinatario_documentos'
     ];
 
     protected $casts = [
@@ -37,7 +38,8 @@ class company extends Model
         'mes' => 'string',
         'ano' => 'string',
         'id_estudio'=>'integer',
-        'id_moneda'=>'integer'
+        'id_moneda'=>'integer',
+        'destinatario_documentos'=> 'string'
     ];
 
     public static array $rules = [

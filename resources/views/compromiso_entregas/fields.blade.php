@@ -23,8 +23,21 @@
 </div>
 @push('page_scripts')
     <script type="text/javascript">
-        $('#date').datepicker()
-        $('#date2').datepicker()
+$(document).ready(function() {
+        // Tu código de inicialización del datepicker
+        $('#date').datepicker({
+            format: "dd/mm/yyyy",
+            language: "es",
+            autoclose: true
+        });
+
+        $('#date2').datepicker({
+            format: "dd/mm/yyyy",
+            language: "es",
+            autoclose: true
+        });
+        
+    });
         
         var multipleCancelButton = new Choices('#id_company', {
             maxItemCount:1,
