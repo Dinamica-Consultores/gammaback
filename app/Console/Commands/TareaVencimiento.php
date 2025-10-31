@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\documento_compania;
 use Carbon\Carbon;
+
+use App\Models\bitacoras_envios_documento;
 use Mail;
 class TareaVencimiento extends Command
 {
@@ -55,7 +57,7 @@ class TareaVencimiento extends Command
             $message->from(env('MAIL_USERNAME'), env('MAIL_FROM_NAME'));
         });
 
-        BitacorasEnviosDocumento::create([
+        bitacoras_envios_documento::create([
             'id_documento_companias' => $documento->id, 
             'fecha_envio' => Carbon::now(), 
             'correos' => $datosCompniaCorreos, 
