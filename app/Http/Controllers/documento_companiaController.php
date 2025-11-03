@@ -12,6 +12,7 @@ use App\Models\company;
 use App\Models\tipo_documento;
 use App\Models\documento_compania;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 
 use Flash;
@@ -79,8 +80,8 @@ class documento_companiaController extends AppBaseController
     {
         
         $companies = company::Select('companies.*')->where('companies.id_estudio',auth()->user()->getIdEstudios())->pluck('razon_social', 'id');
-        $tipo_documentos = tipo_documento::Select('tipo_documentos.*')->where('tipo_documentos.id_estudio',auth()->user()->getIdEstudios())->pluck('nombre', 'id');
-        return view('documento_companias.create')->with('tipo_documentos',$tipo_documentos)->with('companies',$companies);
+        $tipo_documentos = tipo_documento::Select('tipo_documentos.*')->where('tipo_documentos.id_estudio',auth()->user()->getIdEstudios());
+        return view('documento_companias.create')->with('tipo_documentos',$tipo_documentos->pluck('nombre', 'id'))->with('companies',$companies)->with('tipo_documentostodos',$tipo_documentos->get());
     }
 
     /**
@@ -96,8 +97,18 @@ class documento_companiaController extends AppBaseController
         }else{
         $input['url']='';
         }
+        if(isset($input['id_tipodocumento'])){
+            $tipo_documento=tipo_documento::find($input['id_tipodocumento']);
+            if(isset($tipo_documento)){
+                $input['nombre']=$tipo_documento->nombre."-".Carbon::parse($input['fecha_de_vencimiento'])->format('d/m/Y');
+                if($tipo_documento->is_one){
+                    $todos_los_documentos = documento_compania::where('id_compania', $input['id_compania'])->get();;
+                    $todos_los_documentos->each->delete();
+                }
+            }
+        }
         $documentoCompania = $this->documentoCompaniaRepository->create($input);
-
+        
         Flash::success('Documento Compania saved successfully.');
 
         return redirect(route('documento_companias.index'));
@@ -133,8 +144,8 @@ class documento_companiaController extends AppBaseController
         }
        
         $companies = company::Select('companies.*')->where('companies.id_estudio',auth()->user()->getIdEstudios())->pluck('razon_social', 'id');
-        $tipo_documentos = tipo_documento::Select('tipo_documentos.*')->where('tipo_documentos.id_estudio',auth()->user()->getIdEstudios())->pluck('nombre', 'id');
-        return view('documento_companias.edit')->with('documentoCompania', $documentoCompania)->with('tipo_documentos',$tipo_documentos)->with('companies',$companies);
+        $tipo_documentos = tipo_documento::Select('tipo_documentos.*')->where('tipo_documentos.id_estudio',auth()->user()->getIdEstudios());
+        return view('documento_companias.edit')->with('documentoCompania', $documentoCompania)->with('tipo_documentos',$tipo_documentos->pluck('nombre', 'id'))->with('companies',$companies)->with('tipo_documentostodos',$tipo_documentos->get());
     }
 
     /**
@@ -143,13 +154,23 @@ class documento_companiaController extends AppBaseController
     public function update($id, Updatedocumento_companiaRequest $request)
     {
         $documentoCompania = $this->documentoCompaniaRepository->find($id);
-
+       
         if (empty($documentoCompania)) {
             Flash::error('Documento Compania not found');
 
             return redirect(route('documento_companias.index'));
         }
         $input=$request->all();
+        if(isset($input['id_tipodocumento'])){
+            $tipo_documento=tipo_documento::find($input['id_tipodocumento']);
+            if(isset($tipo_documento)){
+                $input['nombre']=$tipo_documento->nombre."-".Carbon::parse($input['fecha_de_vencimiento'])->format('d/m/Y');
+                if($tipo_documento->is_one){
+                    $todos_los_documentos = documento_compania::where('id_compania', $input['id_compania'])->where('id', '!=', $id)->get();;
+                    $todos_los_documentos->each->delete();
+                }
+            }
+        }
         if($request->hasFile('file')){
             $path = $request->file('file')->store('public/documentos');
             $path2 = str_replace('public/', '', $path);

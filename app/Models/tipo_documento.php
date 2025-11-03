@@ -11,13 +11,15 @@ class tipo_documento extends Model
     public $fillable = [
         'nombre',
         'cantidad_dias_preaviso',
-        'id_estudio'
+        'id_estudio',
+        'is_one'
     ];
 
     protected $casts = [
         'nombre' => 'string',
         'cantidad_dias_preaviso' => 'integer',
-        'id_estudio' => 'integer'
+        'id_estudio' => 'integer',
+        'is_one'=>'boolean'
     ];
 
     public static array $rules = [

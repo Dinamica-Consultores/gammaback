@@ -1,5 +1,5 @@
 <!-- Nombre Field -->
-<div class="form-group col-sm-6">
+<div class="form-group col-sm-6" id="formnombre">
     {!! Form::label('nombre', 'Nombre:') !!}
     {!! Form::text('nombre', null, ['class' => 'form-control', 'required']) !!}
 </div>
@@ -63,6 +63,7 @@
 
 @push('page_scripts')
 <script type="text/javascript">
+    const tipoDocumentosData = @json($tipo_documentostodos);
         $('#date').datepicker()
         var multipleCancelButton = new Choices('#id_tipodocumento', {
             maxItemCount:1,
@@ -84,5 +85,34 @@
             searchResultLimit:5,
             renderChoiceLimit:5,
         })
+    const selectElement = document.getElementById('id_tipodocumento');
+    const elementoObjetivo = document.getElementById('formnombre');
+
+    function toggleTargetElement(valorId) {
+        if (!valorId) {
+            elementoObjetivo.style.display = 'block';
+            return;
+        }
+        const documentoSeleccionado = tipoDocumentosData.find(datos => Number(datos.id) === Number(valorId));
+        if (documentoSeleccionado && documentoSeleccionado.is_one) {
+            elementoObjetivo.style.display = 'none'; 
+            $('#nombre').val("No Necesario");
+        } else {
+            elementoObjetivo.style.display = 'block'; 
+            $('#nombre').val("");
+        }
+    }
+
+    function setInitialState() {
+        const valorInicial = selectElement.value;
+        toggleTargetElement(valorInicial);
+    }
+
+
+    selectElement.addEventListener('change', function(event) {
+        toggleTargetElement(event.detail.value);
+    });
+
+    document.addEventListener('DOMContentLoaded', setInitialState);
     </script>
 @endpush

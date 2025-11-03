@@ -31,7 +31,7 @@ class documento_compania extends Model
         'fecha_de_vencimiento' => 'nullable',
         'fecha_de_generacion' => 'required',
         'id_tipodocumento' => 'exists:tipo_documentos,id',
-        'id_compania' => 'exists:estudios,id',
+        'id_compania' => 'exists:companies,id',
         'url' => 'nullable|max:2000'
     ];
     protected function fechaDeGeneracion(): Attribute

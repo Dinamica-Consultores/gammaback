@@ -51,7 +51,7 @@ class documento_companiaAPIController extends AppBaseController
         if($user->id_company_show>0){
             $documentoCompania= $documentoCompania->where('grupo_economicos_empresas.id_company',$user->id_company_show);
         }
-        $documentoCompania=$documentoCompania->get();
+        $documentoCompania=$documentoCompania->with('company')->get();
         return $this->sendResponse($documentoCompania->toArray(), 'Tipo Documentos retrieved successfully');
     }
 

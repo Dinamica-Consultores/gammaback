@@ -53,8 +53,11 @@
     {!! Form::file('logo', $attributes = array(),['class' => 'form-control']) !!}
 </div>
 <div class="form-group col-sm-6">
-    {!! Form::label('destinatario_documentos', 'Destinatarios documentos:') !!}
+    {!! Form::label('destinatario_documentos', 'Vencimiento de Documentos - E-mail de responsables a notificar:') !!}
     {!! Form::textarea('destinatario_documentos', null, ['class' => 'form-control', 'rows' => 2]) !!}
+    <small id="emailHelp" class="form-text text-muted">
+        Ingresar los correos separados por comas. Ejemplo: email1@empresa.com, email2@empresa.com
+    </small>
 </div>
 <!-- Campo Field -->
 <div class="form-group col-sm-6">

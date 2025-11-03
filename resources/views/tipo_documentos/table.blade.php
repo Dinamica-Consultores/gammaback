@@ -5,6 +5,7 @@
             <tr>
                 <th>Nombre</th>
                 <th>Cantidad Dias Preaviso</th>
+                <th>Es unico?</th>
                 <th colspan="3">Action</th>
             </tr>
             </thead>
@@ -13,6 +14,7 @@
                 <tr>
                     <td>{{ $tipoDocumento->nombre }}</td>
                     <td>{{ $tipoDocumento->cantidad_dias_preaviso }}</td>
+                    <td>{{ $tipoDocumento->is_one?'Correcto':'Falso' }}</td>
                     <td  style="width: 120px">
                         {!! Form::open(['route' => ['tipo_documentos.destroy', $tipoDocumento->id], 'method' => 'delete']) !!}
                         <div class='btn-group'>
