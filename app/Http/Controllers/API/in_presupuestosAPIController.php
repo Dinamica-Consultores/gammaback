@@ -8,6 +8,7 @@ use App\Models\in_presupuestos;
 use App\Repositories\in_presupuestosRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Models\sucursales;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\AppBaseController;
 
@@ -82,11 +83,12 @@ class in_presupuestosAPIController extends AppBaseController
             }
 
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_presupuestos.id_excel")
                     ->on("sucursales.nombre","=","in_presupuestos.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
         }
         $sqlCheck = $sqlCheck->groupByRaw('clasificacion_er,in_presupuestos.ano,in_presupuestos.mes');
         $data = $sqlCheck->get();
@@ -139,11 +141,12 @@ class in_presupuestosAPIController extends AppBaseController
             }
 
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_presupuestos.id_excel")
                     ->on("sucursales.nombre","=","in_presupuestos.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
         }
         $sqlCheck = $sqlCheck->orderByRaw('DATE(CONCAT (in_presupuestos.ano,"-",in_presupuestos.mes,"-","1")) ASC');
         if ($year > 0 && $month > 0) {
@@ -206,11 +209,12 @@ class in_presupuestosAPIController extends AppBaseController
                 $sqlCheck= $sqlCheck->where('grupo_economicos_empresas.id_company',$user->id_company_show);
             }
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_presupuestos.id_excel")
                     ->on("sucursales.nombre","=","in_presupuestos.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
         }
         if($year>0){
             $sqlCheck= $sqlCheck->where('in_presupuestos.ano',$year);
@@ -268,11 +272,12 @@ class in_presupuestosAPIController extends AppBaseController
             $sqlCheck= $sqlCheck->where('grupo_economicos_empresas.id_company',$user->id_company_show);
         }
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_presupuestos.id_excel")
                     ->on("sucursales.nombre","=","in_presupuestos.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
         }
         if($year>0){
             $sqlCheck= $sqlCheck->where('in_presupuestos.ano',$year);
@@ -362,6 +367,7 @@ class in_presupuestosAPIController extends AppBaseController
 
 
             if($sucursal>0){
+                $sucursalas = sucursales::find($sucursal);
                 $sqlCheck=$sqlCheck->join('sucursales',function($join){
                     $join->on("sucursales.id_excel","=","in_presupuestos.id_excel")
                         ->on("sucursales.nombre","=","in_presupuestos.sucursal");
@@ -370,8 +376,9 @@ class in_presupuestosAPIController extends AppBaseController
                     $join->on("sucursales.id_excel","=","in_presupuestos.id_excel")
                         ->on("sucursales.nombre","=","in_presupuestos.sucursal");
                 });
-                $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
-                $sqlCheck2=$sqlCheck2->where('sucursales.id',$sucursal);
+                
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
+            $sqlCheck2=$sqlCheck2->where('sucursales.nombre',$sucursalas->nombre);
             }
             $OrderSQLData='
             clasificacion_cuenta_resuls.origen,
@@ -457,11 +464,12 @@ class in_presupuestosAPIController extends AppBaseController
                 }
     
             if($input['sucursal']>0){
-                $sqlCheck=$sqlCheck->join('sucursales',function($join){
-                    $join->on("sucursales.id_excel","=","in_presupuestos.id_excel")
-                        ->on("sucursales.nombre","=","in_presupuestos.sucursal");
-                });
-                $sqlCheck=$sqlCheck->where('sucursales.id',$input['sucursal']);
+                $sucursalas = sucursales::find($input['sucursal']);
+            $sqlCheck=$sqlCheck->join('sucursales',function($join){
+                $join->on("sucursales.id_excel","=","in_presupuestos.id_excel")
+                    ->on("sucursales.nombre","=","in_presupuestos.sucursal");
+            });
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
             }
     
             
@@ -524,11 +532,12 @@ class in_presupuestosAPIController extends AppBaseController
             $sqlCheck= $sqlCheck->where('grupo_economicos_empresas.id_company',$user->id_company_show);
         }
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_presupuestos.id_excel")
                     ->on("sucursales.nombre","=","in_presupuestos.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
         }
         if($year>0){
             $sqlCheck= $sqlCheck->where('in_presupuestos.ano',$year);
@@ -592,11 +601,12 @@ class in_presupuestosAPIController extends AppBaseController
             $sqlCheck= $sqlCheck->where('grupo_economicos_empresas.id_company',$user->id_company_show);
         }
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_presupuestos.id_excel")
                     ->on("sucursales.nombre","=","in_presupuestos.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
         }
         $sqlCheck = $sqlCheck->groupByRaw('
         clasificacion_cuenta_resuls.origen,

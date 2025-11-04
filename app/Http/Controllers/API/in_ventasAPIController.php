@@ -8,6 +8,7 @@ use App\Models\in_ventas;
 use App\Repositories\in_ventasRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Models\sucursales;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\AppBaseController;
 
@@ -74,11 +75,12 @@ class in_ventasAPIController extends AppBaseController
             $sqlCheck= $sqlCheck->where('grupo_economicos_empresas.id_company',$user->id_company_show);
         }
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_ventas.id_excel")
                     ->on("sucursales.nombre","=","in_ventas.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
         }
         if($year>0){
             $sqlCheck= $sqlCheck->where('in_ventas.ano',$year);
@@ -128,11 +130,12 @@ class in_ventasAPIController extends AppBaseController
             $sqlCheck= $sqlCheck->where('grupo_economicos_empresas.id_company',$user->id_company_show);
         }
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_ventas.id_excel")
                     ->on("sucursales.nombre","=","in_ventas.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
         }
         if($year>0){
             $sqlCheck= $sqlCheck->where('in_ventas.ano',$year);
@@ -229,6 +232,7 @@ class in_ventasAPIController extends AppBaseController
         $sqlCheck = $sqlCheck->orderByRaw('setup_analises.nombre ASC');
         $sqlCheck2 = $sqlCheck2->orderByRaw('setup_analises.nombre ASC');
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_ventas.id_excel")
                     ->on("sucursales.nombre","=","in_ventas.sucursal");
@@ -237,8 +241,8 @@ class in_ventasAPIController extends AppBaseController
                 $join->on("sucursales.id_excel","=","in_ventas.id_excel")
                     ->on("sucursales.nombre","=","in_ventas.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
-            $sqlCheck2=$sqlCheck2->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
+            $sqlCheck2=$sqlCheck2->where('sucursales.nombre',$sucursalas->nombre);
         }
         if($year>0 && $month>0 && $yearan>0 && $monthan){
             $sqlCheck = $sqlCheck->where('in_ventas.ano', $year);
@@ -338,6 +342,7 @@ class in_ventasAPIController extends AppBaseController
             $sqlCheck2= $sqlCheck2->where('grupo_economicos_empresas.id_company',$user->id_company_show);
         }
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_ventas.id_excel")
                     ->on("sucursales.nombre","=","in_ventas.sucursal");
@@ -346,8 +351,8 @@ class in_ventasAPIController extends AppBaseController
                 $join->on("sucursales.id_excel","=","in_ventas.id_excel")
                     ->on("sucursales.nombre","=","in_ventas.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
-            $sqlCheck2=$sqlCheck2->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
+            $sqlCheck2=$sqlCheck2->where('sucursales.nombre',$sucursalas->nombre);
         }
         $sqlCheck= $sqlCheck->groupByRaw('setup_analises.nombre,  in_ventas.codigo_analisis');
         $sqlCheck2= $sqlCheck2->groupByRaw('setup_analises.nombre, in_ventas.codigo_analisis');

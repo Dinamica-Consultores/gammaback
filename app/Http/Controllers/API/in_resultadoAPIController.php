@@ -6,6 +6,7 @@ use App\Http\Requests\API\Createin_resultadoAPIRequest;
 use App\Http\Requests\API\Updatein_resultadoAPIRequest;
 use App\Models\in_resultado;
 use App\Models\in_presupuestos;
+use App\Models\sucursales;
 use App\Repositories\in_resultadoRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -103,11 +104,12 @@ class in_resultadoAPIController extends AppBaseController
 
 
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_resultados.id_excel")
                     ->on("sucursales.nombre","=","in_resultados.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
         }
         if ($year > 0) {
             $sqlCheck = $sqlCheck->where('in_resultados.ano', $year);
@@ -165,11 +167,12 @@ class in_resultadoAPIController extends AppBaseController
             }
 
         if($input['sucursal']>0){
+            $sucursalas = sucursales::find($input['sucursal']);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_resultados.id_excel")
                     ->on("sucursales.nombre","=","in_resultados.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$input['sucursal']);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
         }
 
         
@@ -234,11 +237,13 @@ class in_resultadoAPIController extends AppBaseController
 
 
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_resultados.id_excel")
                     ->on("sucursales.nombre","=","in_resultados.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
+
         }
         if ($year > 0) {
             $sqlCheck = $sqlCheck->where('in_resultados.ano', $year);
@@ -301,11 +306,12 @@ class in_resultadoAPIController extends AppBaseController
 
 
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_resultados.id_excel")
                     ->on("sucursales.nombre","=","in_resultados.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
         }
         $sqlCheck = $sqlCheck->groupByRaw('clasificacion_er,in_resultados.ano,in_resultados.mes');
         $data = $sqlCheck->get();
@@ -359,11 +365,13 @@ class in_resultadoAPIController extends AppBaseController
 
 
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_resultados.id_excel")
                     ->on("sucursales.nombre","=","in_resultados.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
+
         }
         $sqlCheck = $sqlCheck->orderByRaw('DATE(CONCAT (in_resultados.ano,"-",in_resultados.mes,"-","1")) ASC');
         $sqlCheck = $sqlCheck->groupByRaw('ipc,clasificacion_ebit_ebitda,DATE(CONCAT (in_resultados.ano,"-",in_resultados.mes,"-","1"))');
@@ -425,11 +433,13 @@ class in_resultadoAPIController extends AppBaseController
 
 
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_resultados.id_excel")
                     ->on("sucursales.nombre","=","in_resultados.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
+
         }
        $sqlCheck= $sqlCheck->orderByRaw('clasificacion_cuenta_resuls.id ASC');
         $sqlCheck = $sqlCheck->groupByRaw('
@@ -504,11 +514,13 @@ class in_resultadoAPIController extends AppBaseController
 
 
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_resultados.id_excel")
                     ->on("sucursales.nombre","=","in_resultados.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
+
         }
         if ($year > 0) {
             $sqlCheck = $sqlCheck->where('in_resultados.ano', $year);
@@ -597,6 +609,7 @@ class in_resultadoAPIController extends AppBaseController
             }
 
             if($sucursal>0){
+                $sucursalas = sucursales::find($sucursal);    
                 $sqlCheck=$sqlCheck->join('sucursales',function($join){
                     $join->on("sucursales.id_excel","=","in_resultados.id_excel")
                         ->on("sucursales.nombre","=","in_resultados.sucursal");
@@ -605,8 +618,8 @@ class in_resultadoAPIController extends AppBaseController
                     $join->on("sucursales.id_excel","=","in_resultados.id_excel")
                         ->on("sucursales.nombre","=","in_resultados.sucursal");
                 });
-                $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
-                $sqlCheck2=$sqlCheck2->where('sucursales.id',$sucursal);
+                $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
+                $sqlCheck2=$sqlCheck2->where('sucursales.nombre',$sucursalas->nombre);
             }
             $sqlCheck2 = $sqlCheck2->groupByRaw('
             clasificacion_cuenta_resuls.origen,
@@ -704,11 +717,12 @@ class in_resultadoAPIController extends AppBaseController
             }
 
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_resultados.id_excel")
                     ->on("sucursales.nombre","=","in_resultados.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
         }
         if ($year > 0) {
             $sqlCheck = $sqlCheck->where('in_resultados.ano', $year);
@@ -767,11 +781,12 @@ class in_resultadoAPIController extends AppBaseController
             }
 
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_resultados.id_excel")
                     ->on("sucursales.nombre","=","in_resultados.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
         }
         $sqlCheck = $sqlCheck->orderByRaw('DATE(CONCAT (in_resultados.ano,"-",in_resultados.mes,"-","1")) ASC');
         if ($year > 0 && $month > 0) {
@@ -844,11 +859,12 @@ class in_resultadoAPIController extends AppBaseController
 
 
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_resultados.id_excel")
                     ->on("sucursales.nombre","=","in_resultados.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
         }
         $sqlCheck = $sqlCheck->groupByRaw('
         clasificacion_cuenta_resuls.origen,
@@ -927,11 +943,12 @@ class in_resultadoAPIController extends AppBaseController
 
 
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_resultados.id_excel")
                     ->on("sucursales.nombre","=","in_resultados.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
         }
         $sqlCheck = $sqlCheck->groupByRaw('
         clasificacion_cuenta_resuls.origen,

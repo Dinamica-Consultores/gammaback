@@ -9,6 +9,7 @@ use App\Repositories\in_balanceRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Models\sucursales;
 use App\Http\Controllers\AppBaseController;
 
 /**
@@ -85,11 +86,12 @@ class in_balanceAPIController extends AppBaseController
         }
 
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_balances.id_excel")
                     ->on("sucursales.nombre","=","in_balances.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
         }
         if($year>0 && $month>0){
             $sqlCheck= $sqlCheck->where('in_balances.mes',$month);
@@ -203,6 +205,7 @@ class in_balanceAPIController extends AppBaseController
             $sqlCheck3= $sqlCheck3->where('grupo_economicos_empresas.id_company',$user->id_company_show);
         }
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_balances.id_excel")
                     ->on("sucursales.nombre","=","in_balances.sucursal");
@@ -215,9 +218,12 @@ class in_balanceAPIController extends AppBaseController
                 $join->on("sucursales.id_excel","=","in_balances.id_excel")
                     ->on("sucursales.nombre","=","in_balances.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
-            $sqlCheck2=$sqlCheck2->where('sucursales.id',$sucursal);
-            $sqlCheck3=$sqlCheck3->where('sucursales.id',$sucursal);
+            
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
+            
+            $sqlCheck2=$sqlCheck2->where('sucursales.nombre',$sucursalas->nombre);
+            
+            $sqlCheck3=$sqlCheck3->where('sucursales.nombre',$sucursalas->nombre);
         }
         $grupos='categorizacion_cts_balances.nivel_3,
         categorizacion_cts_balances.nivel_4,
@@ -301,11 +307,12 @@ class in_balanceAPIController extends AppBaseController
 
         $sqlCheck = $sqlCheck->orderByRaw('DATE(CONCAT (in_balances.ano,"-",in_balances.mes,"-","1")) ASC');
         if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
                 $join->on("sucursales.id_excel","=","in_balances.id_excel")
                     ->on("sucursales.nombre","=","in_balances.sucursal");
             });
-            $sqlCheck=$sqlCheck->where('sucursales.id',$sucursal);
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
         }
         $grupos='categorizacion_cts_balances.nivel_3,
         categorizacion_cts_balances.nivel_4,
