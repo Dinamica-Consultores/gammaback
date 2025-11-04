@@ -200,37 +200,6 @@
 
 
 @endif
-<li class="nav-item menu-is-opening ">
-<a href="#" class="nav-link">
-            <i class="nav-icon fas  fa-plus"></i>
-            <p>
-         Documentos
-            <i class="right fas fa-angle-down"></i>
-        </p>
-   </a>
-  <ul class="nav nav-treeview" style="display: none;">
-  <li class="nav-item">
-    <a href="{{ route('tipo_documentos.index') }}" class="nav-link {{ Request::is('tipo_documentos*') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-file-alt"></i> 
-        <p>Tipo Documentos</p>
-    </a>
-</li>
-
-<li class="nav-item">
-    <a href="{{ route('documento_companias.index') }}" class="nav-link {{ Request::is('documento_companias*') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-building"></i> 
-        <p>Documento Companias</p>
-    </a>
-</li>
-
-<li class="nav-item">
-    <a href="{{ route('bitacoras_envios_documentos.index') }}" class="nav-link {{ Request::is('bitacoras_envios_documentos*') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-envelope-open-text"></i>
-        <p>Bitacoras Envios</p>
-    </a>
-</li>
-  </ul>
-</li>
 
 
 
