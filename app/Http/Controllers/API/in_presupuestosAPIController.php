@@ -148,7 +148,6 @@ class in_presupuestosAPIController extends AppBaseController
             });
             $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
         }
-        $sqlCheck = $sqlCheck->orderByRaw('DATE(CONCAT (in_presupuestos.ano,"-",in_presupuestos.mes,"-","1")) ASC');
         if ($year > 0 && $month > 0) {
             $dateStart = $year . '-' . $month . '-01';
             $effectiveDate = strtotime("+11 months", strtotime($dateStart)); // returns timestamp
@@ -160,6 +159,7 @@ class in_presupuestosAPIController extends AppBaseController
         } 
        
         $sqlCheck = $sqlCheck->groupByRaw('clasificacion_cuenta_juridica_legal,in_presupuestos.mes,in_presupuestos.ano,origen');
+        $sqlCheck = $sqlCheck->orderByRaw('DATE(CONCAT (in_presupuestos.ano,"-",in_presupuestos.mes,"-","1")) ASC');
         $data = $sqlCheck->get();
 
         return $this->sendResponse($data, 'In Presupuestos retrieved successfully');

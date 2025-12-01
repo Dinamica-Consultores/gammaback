@@ -373,8 +373,8 @@ class in_resultadoAPIController extends AppBaseController
             $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
 
         }
-        $sqlCheck = $sqlCheck->orderByRaw('DATE(CONCAT (in_resultados.ano,"-",in_resultados.mes,"-","1")) ASC');
         $sqlCheck = $sqlCheck->groupByRaw('ipc,clasificacion_ebit_ebitda,DATE(CONCAT (in_resultados.ano,"-",in_resultados.mes,"-","1"))');
+        $sqlCheck = $sqlCheck->orderByRaw('DATE(CONCAT (in_resultados.ano,"-",in_resultados.mes,"-","1")) ASC');
         $data = $sqlCheck->get();
 
         return $this->sendResponse($data, 'In Resultadoss retrieved successfully');
@@ -441,7 +441,6 @@ class in_resultadoAPIController extends AppBaseController
             $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
 
         }
-       $sqlCheck= $sqlCheck->orderByRaw('clasificacion_cuenta_resuls.id ASC');
         $sqlCheck = $sqlCheck->groupByRaw('
         clasificacion_cuenta_resuls.origen,
         clasificacion_cuenta_resuls.grupo,
@@ -454,6 +453,8 @@ class in_resultadoAPIController extends AppBaseController
         tipo_cambios_globals.ipc,
         clasificacion_cuenta_resuls.id,
         in_resultados.mes');
+        
+       $sqlCheck= $sqlCheck->orderByRaw('clasificacion_cuenta_resuls.id ASC');
         if ($year > 0) {
             $sqlCheck = $sqlCheck->where('in_resultados.ano','<=', $year+1);
             $sqlCheck = $sqlCheck->where('in_resultados.ano','>=', $year-12);

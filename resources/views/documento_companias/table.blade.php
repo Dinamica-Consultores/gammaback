@@ -18,9 +18,9 @@
 @endphp
             @foreach($documentoCompanias as $documentoCompania)
                 <tr>
-                    <td>{{ $documentoCompania->nombre }}</td>
+                    <td>{{ $documentoCompania?->nombre }}</td>
                     <td>{{ Carbon::parse($documentoCompania->fecha_de_vencimiento)->format('d/m/Y') }}</td>
-                    <td>   {{ Carbon::parse($documentoCompania->fecha_de_generacion)->format('d/m/Y') }} </td>
+                    <td>  {{ Carbon::parse($documentoCompania->fecha_de_generacion)->format('d/m/Y') }} </td>
                     <td>{{ $documentoCompania->tipo_documento->nombre }}</td>
                     <td>{{ $documentoCompania->company->razon_social }}</td>
                     <td>
