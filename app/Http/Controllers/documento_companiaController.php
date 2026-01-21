@@ -102,7 +102,7 @@ class documento_companiaController extends AppBaseController
             if(isset($tipo_documento)){
                 $input['nombre']=$tipo_documento->nombre."-".Carbon::parse($input['fecha_de_vencimiento'])->format('d/m/Y');
                 if($tipo_documento->is_one){
-                    $todos_los_documentos = documento_compania::where('id_compania', $input['id_compania'])->get();;
+                    $todos_los_documentos = documento_compania::where('id_compania', $input['id_compania'])->where('id_tipodocumento',$tipo_documento->id)->get();;
                     $todos_los_documentos->each->delete();
                 }
             }
@@ -166,7 +166,7 @@ class documento_companiaController extends AppBaseController
             if(isset($tipo_documento)){
                 $input['nombre']=$tipo_documento->nombre."-".Carbon::parse($input['fecha_de_vencimiento'])->format('d/m/Y');
                 if($tipo_documento->is_one){
-                    $todos_los_documentos = documento_compania::where('id_compania', $input['id_compania'])->where('id', '!=', $id)->get();;
+                    $todos_los_documentos = documento_compania::where('id_compania', $input['id_compania'])->where('id_tipodocumento',$tipo_documento->id)->where('id', '!=', $id)->get();;
                     $todos_los_documentos->each->delete();
                 }
             }

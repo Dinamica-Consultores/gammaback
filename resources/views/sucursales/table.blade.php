@@ -13,7 +13,7 @@
             @foreach($sucursale as $sucursales)
                 <tr>
                     <td>{{ $sucursales->nombre }}</td>
-                    <td>{{ $sucursales->excel->company->razon_social }}</td>
+                    <td>{{ $sucursales->excel->company?->razon_social }}</td>
                     <td>{{ $sucursales->excel->version }}</td>
                     <td  style="width: 120px">
                         {!! Form::open(['route' => ['sucursales.destroy', $sucursales->id], 'method' => 'delete']) !!}

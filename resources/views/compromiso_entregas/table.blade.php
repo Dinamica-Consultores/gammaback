@@ -21,7 +21,7 @@
                     <td>{{ $compromisoEntrega->fecha_entrega->format('d/m/Y') }}</td>
                     <td>{{ $compromisoEntrega->descripcion_entrega }}</td>
                     <td>{{ $compromisoEntrega->user->email }}</td>
-                    <td>{{ $compromisoEntrega->company->razon_social }}</td>
+                    <td>{{ $compromisoEntrega->company?->razon_social }}</td>
                     <td>{{ $compromisoEntrega->fecha_entregado?->format('d/m/Y') }}</td>
                     <td>{{ $compromisoEntrega->descripcion_entregado }}</td>
                    

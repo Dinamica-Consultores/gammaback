@@ -10,7 +10,7 @@ use App\Models\sucursales;
 use App\Repositories\in_resultadoRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\AppBaseController;
 
@@ -299,6 +299,8 @@ class in_resultadoAPIController extends AppBaseController
             $sqlCheck= $sqlCheck->join('grupo_economicos_empresas','grupo_economicos_empresas.id_company','companies.id');
             $sqlCheck= $sqlCheck->join('usuario_grupoeconomicos','usuario_grupoeconomicos.id_grupoeconomico','grupo_economicos_empresas.id_grupoeconomico');
             $sqlCheck= $sqlCheck->where('grupo_economicos_empresas.id_grupoeconomico',$user->id_group_show);
+            $sqlCheck= $sqlCheck->where('clasificacion_cuenta_resuls.origen','<>','Jurídico');
+            
             $sqlCheck= $sqlCheck->where('usuario_grupoeconomicos.id_users',$user->id);
             if($user->id_company_show>0){
                 $sqlCheck= $sqlCheck->where('grupo_economicos_empresas.id_company',$user->id_company_show);

@@ -16,12 +16,12 @@
                     <td>{{ $excelscompany->path }}</td>
                     <td>{{ $excelscompany->version }}</td>
                     <td>{{ $excelscompany->date }}</td>
-                    <td>{{ $excelscompany->company->razon_social }}</td>
+                    <td>{{ $excelscompany->company?->razon_social }}</td>
                     <td  style="width: 120px">
                         {!! Form::open(['route' => ['excelscompanies.destroy', $excelscompany->id], 'method' => 'delete']) !!}
                         <div class='btn-group'>
                            <a  id="abrirModalJQuery"
-                           data-company-id="{{ $excelscompany->company->id }}"
+                           data-company-id="{{ $excelscompany->company?->id }}"
                                class='btn btn-default btn-xs' onclick="realizaraccion(this)">
                                <i class="far fa-clock"></i>
                             </a>

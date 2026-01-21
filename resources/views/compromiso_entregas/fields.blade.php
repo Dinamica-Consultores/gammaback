@@ -41,7 +41,7 @@ $(document).ready(function() {
         
         var multipleCancelButton = new Choices('#id_company', {
             maxItemCount:1,
-            itemSelectText:'Selecciona un item',  
+            itemSelectText:'Selecciona un compañía',  
             placeholder: true, // ¡Cambia esto a true!
             placeholderValue: 'Selecciona una compañía...',
             removeItemButton: true,
@@ -49,9 +49,15 @@ $(document).ready(function() {
             searchResultLimit:5,
             renderChoiceLimit:5,
         })
+        $('#id_company').on('change', function() {
+        const val = $(this).val(); 
+        if(val.length>0){
+
+        }
+    })
         var multipleCancelButton = new Choices('#usuario', {
             maxItemCount:1,
-            itemSelectText:'Selecciona un item',  
+            itemSelectText:'Selecciona un usuario',  
             placeholder: true, // ¡Cambia esto a true!
             placeholderValue: 'Selecciona un usuario...',
             removeItemButton: true,
