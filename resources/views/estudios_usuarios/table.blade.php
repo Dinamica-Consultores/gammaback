@@ -3,7 +3,8 @@
         <table class="table" id="estudios_usuarios-table">
             <thead>
             <tr>
-                <th>Usuario</th>
+                <th>Usuario Nombre y Apellido</th>
+                <th>Usuario Email</th>
                 <th>Estudio</th>
                 <th colspan="3">Action</th>
             </tr>
@@ -11,6 +12,8 @@
             <tbody>
             @foreach($estudiosUsuarios as $estudiosUsuarioss)
                 <tr>
+                    
+                    <td>{{ $estudiosUsuarioss->User->name }} {{ $estudiosUsuarioss->User->surname }}</td>
                     <td>{{ $estudiosUsuarioss->User->email }}</td>
                     <td>{{ $estudiosUsuarioss->estudios->razon_social }}</td>
                     <td  style="width: 120px">

@@ -7,6 +7,8 @@ use App\Http\Requests\Updateestudios_usuariosRequest;
 use App\Http\Controllers\AppBaseController;
 use App\Repositories\estudios_usuariosRepository;
 use Illuminate\Http\Request;
+
+use Illuminate\Support\Facades\DB;
 use App\Models\usuario_grupoeconomico;
 use App\Models\estudios_usuarios;
 use App\Models\User;
@@ -38,7 +40,13 @@ class estudios_usuariosController extends AppBaseController
      */
     public function create()
     {
-        $Usuarios=User::Select('users.*')->leftJoin('estudios_usuarios','estudios_usuarios.id_users','users.id')->whereNull('estudios_usuarios.id')->pluck('email', 'id');
+$Usuarios = User::select(
+        'users.id',
+        DB::raw("CONCAT(users.name, ' ', users.surname, ' (', users.email, ')') as full_label")
+    )
+    ->leftJoin('estudios_usuarios', 'estudios_usuarios.id_users', '=', 'users.id')
+    ->whereNull('estudios_usuarios.id')
+    ->pluck('full_label', 'id');
         $estudios=estudios::Select('estudios.*')->pluck('razon_social', 'id');
 
         return view('estudios_usuarios.create')->with('usuarios',$Usuarios)->with('estudios',$estudios);

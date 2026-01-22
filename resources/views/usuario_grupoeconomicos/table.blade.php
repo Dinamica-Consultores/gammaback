@@ -3,7 +3,8 @@
         <table class="table" id="usuario_grupoeconomicos-table">
             <thead>
             <tr>
-                <th>Usuarios</th>
+                <th>Usuarios Nombre</th>
+                <th>Usuarios Email</th>
                 <th>Cantidad Redes Comercial</th>
                 <th colspan="3">Action</th>
             </tr>
@@ -11,6 +12,8 @@
             <tbody>
             @foreach($usuarioGrupoeconomicos as $usuarioGrupoeconomicoss)
                 <tr>
+                    
+                    <td>{{ $usuarioGrupoeconomicoss->name }}</td>
                     <td>{{ $usuarioGrupoeconomicoss->email }}</td>
                     <td>{{ $usuarioGrupoeconomicoss->Cantidad }}</td>
                     <td  style="width: 120px">

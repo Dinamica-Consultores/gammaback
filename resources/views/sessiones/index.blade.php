@@ -14,11 +14,17 @@
                 <div class="row mb-2">
                 <div class="form-group col-sm-6">
     {!! Form::label('query', 'Usuario:') !!}
-    {!! Form::select('query', $users, request('query') , ['class' => 'form-control custom-select ','multiple'=>'multiple' ,'id' => 'query' ,'name' => 'query', 'required' => true]) !!}
+    {!! Form::select('query', $users, request('query') , ['class' => 'form-control custom-select ','multiple'=>'multiple' ,'id' => 'query' ,'name' => 'query']) !!}
 </div>
                 <div class="form-group col-sm-6">
     {!! Form::label('query1', 'Tarea:') !!}
-    {!! Form::text('query1',  request('query1') , ['class' => 'form-control']) !!}
+{!! Form::select('query1', [
+    '' => 'Seleccione una acción...',
+    'Login' => 'Login',
+    'Logout' => 'Logout',
+    'Cambio de compañias' => 'Cambio de compañías',
+    'Cambio de Grupo Economico' => 'Cambio de Grupo Económico'
+], request('query1'), ['class' => 'form-control', 'id' => 'query1','name' => 'query1']) !!}
 </div>
             
 

@@ -28,7 +28,7 @@ class documento_compania extends Model
 
     public static array $rules = [
         'nombre' => 'required',
-        'fecha_de_vencimiento' => 'nullable',
+        'fecha_de_vencimiento' => 'required',
         'fecha_de_generacion' => 'required',
         'id_tipodocumento' => 'exists:tipo_documentos,id',
         'id_compania' => 'exists:companies,id',
