@@ -10,12 +10,13 @@ use Laravel\Passport\HasApiTokens;
 use Auth;
 use App\Models\estudios_usuarios;
 use App\Models\controlcuentas;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\usuarios_empresas;
 class User extends Model implements AuthenticatableContract
 {
-    use HasApiTokens,Notifiable,Authenticatable;
+    use HasApiTokens,Notifiable,Authenticatable,SoftDeletes;
     public $table = 'users';
-
+    protected $dates = ['deleted_at'];
     public $fillable = [
         'name',
         'surname',
