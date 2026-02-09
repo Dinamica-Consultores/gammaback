@@ -41,7 +41,7 @@ Route::resource('usuario_grupoeconomicos', App\Http\Controllers\usuario_grupoeco
 Route::resource('bitacoras', App\Http\Controllers\bitacoraController::class);
 Route::get('/bitacoras/{id}/grupo', [ App\Http\Controllers\bitacoraController::class, 'index2'])->name('bitacoras.index2');
 Route::get('/bitacoras/{id}/EnviosEmail/{id2}', [ App\Http\Controllers\bitacoraController::class, 'EnviosEmail'])->name('bitacoras.EnviosEmail');
-
+Route::get('/userCompany/{idCompany}', [ App\Http\Controllers\UserController::class, 'getUsersCompanies'])->name('users.getUsersCompanies');
 Route::get('/bitacoras/{id}/grupo/create', [ App\Http\Controllers\bitacoraController::class, 'create2'])->name('bitacoras.create2');
 Route::post('/bitacoras/{id}/grupo/store', [ App\Http\Controllers\bitacoraController::class, 'store'])->name('bitacoras.store');
 Route::get('/bitacoras/{id}/grupo/{id2}/edit', [ App\Http\Controllers\bitacoraController::class, 'edit'])->name('bitacoras.edit');

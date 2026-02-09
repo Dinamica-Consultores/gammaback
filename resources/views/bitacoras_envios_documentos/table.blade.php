@@ -17,8 +17,8 @@
             @foreach($bitacorasEnviosDocumentos as $bitacorasEnviosDocumento)
                 <tr>
                   
-                <td>{{ $bitacorasEnviosDocumento->documento_companias->company->razon_social }}</td>
-                <td>{{ $bitacorasEnviosDocumento->documento_companias->tipo_documento->nombre }}</td>
+                <td>{{ $bitacorasEnviosDocumento->documento_companias?->company?->razon_social }}</td>
+                <td>{{ $bitacorasEnviosDocumento->documento_companias?->tipo_documento?->nombre }}</td>
                     <td>{{Carbon::parse( $bitacorasEnviosDocumento->fecha_envion)->format('d/m/Y')  }}</td>
                     <td>{{ $bitacorasEnviosDocumento->correos }}</td>
                     <td>{{ $bitacorasEnviosDocumento->texto_data }}</td>

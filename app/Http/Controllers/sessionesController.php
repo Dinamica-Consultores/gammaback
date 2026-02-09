@@ -7,7 +7,7 @@ use App\Http\Requests\UpdatesessionesRequest;
 use App\Http\Controllers\AppBaseController;
 use App\Repositories\sessionesRepository;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\sessiones;
 use Flash;
@@ -27,36 +27,41 @@ class sessionesController extends AppBaseController
      */
     public function index(Request $request)
     {
-        if(auth()->user()->level_user==0){
-            $users = User::Select('users.*');
-            $users=$users->where('users.level_user','=',1);
-            $users=$users->orWhere('users.level_user','=',0);
-            if(auth()->user()->getIdEstudios()>0){
-                $usuarioConcatenar=User::Select('users.*');
-                $usuarioConcatenar=$usuarioConcatenar->join('estudios_usuarios','estudios_usuarios.id_users','users.id');
-                $usuarioConcatenar=$usuarioConcatenar->where('users.level_user','>',1);        
-                $usuarioConcatenar=$usuarioConcatenar->where('estudios_usuarios.id_estudios','=',auth()->user()->getIdEstudios());  
-                $users=$users->union($usuarioConcatenar);
-            }
-        }else if(auth()->user()->level_user==1){
-            $users = User::Select('users.*');
-            $users=$users->join('estudios_usuarios','estudios_usuarios.id_users','users.id');
-            $users=$users->where('users.level_user','>',0);        
-            $users=$users->where('estudios_usuarios.id_estudios','=',auth()->user()->getIdEstudios());    
-        }else if(auth()->user()->level_user==2){
-            $users = User::Select('users.*');
-            $users=$users->join('estudios_usuarios','estudios_usuarios.id_users','users.id');
-            $users=$users->where('users.level_user','>',1); 
-            $users=$users->where('estudios_usuarios.id_estudios','=',auth()->user()->getIdEstudios());          
-        }else if(auth()->user()->level_user==3){
-            $users = User::Select('users.*');
-            $users=$users->join('estudios_usuarios','estudios_usuarios.id_users','users.id');
-            $users=$users->where('users.level_user','>',1); 
-            $users=$users->where('estudios_usuarios.id_estudios','=',auth()->user()->getIdEstudios());   
-            $users=$users->where('users.id','=',auth()->user()->id);       
-        }
+    $fullLabel = DB::raw("CONCAT(users.name, ' ', users.surname, ' (', users.email, ')') as label_completo");
+
+if (auth()->user()->level_user == 0) {
+    $users = User::select('users.id', $fullLabel)
+        ->whereIn('users.level_user', [0, 1]);
+
+    if (auth()->user()->getIdEstudios() > 0) {
+        $usuarioConcatenar = User::select('users.id', $fullLabel)
+            ->join('estudios_usuarios', 'estudios_usuarios.id_users', '=', 'users.id')
+            ->where('users.level_user', '>', 1)
+            ->where('estudios_usuarios.id_estudios', '=', auth()->user()->getIdEstudios());
         
-        $users= $users->pluck('email', 'id');
+        $users = $users->union($usuarioConcatenar);
+    }
+} else if (auth()->user()->level_user == 1) {
+    $users = User::select('users.id', $fullLabel)
+        ->join('estudios_usuarios', 'estudios_usuarios.id_users', '=', 'users.id')
+        ->where('users.level_user', '>', 0)
+        ->where('estudios_usuarios.id_estudios', '=', auth()->user()->getIdEstudios());
+        
+} else if (auth()->user()->level_user == 2) {
+    $users = User::select('users.id', $fullLabel)
+        ->join('estudios_usuarios', 'estudios_usuarios.id_users', '=', 'users.id')
+        ->where('users.level_user', '>', 1)
+        ->where('estudios_usuarios.id_estudios', '=', auth()->user()->getIdEstudios());
+        
+} else if (auth()->user()->level_user == 3) {
+    $users = User::select('users.id', $fullLabel)
+        ->join('estudios_usuarios', 'estudios_usuarios.id_users', '=', 'users.id')
+        ->where('users.level_user', '>', 1)
+        ->where('estudios_usuarios.id_estudios', '=', auth()->user()->getIdEstudios())
+        ->where('users.id', '=', auth()->user()->id);
+}
+        
+        $users= $users->distinct()->pluck('label_completo', 'id');
         $sesion=sessiones::SELECT('sessiones.opcion','sessiones.created_at','users.email')->join('users','users.id','sessiones.user_id')->join('estudios_usuarios','estudios_usuarios.id_users','users.id')->where('estudios_usuarios.id_estudios',auth()->user()->getIdEstudios());
         $datosWhere='';
         $arrayWhere=array();

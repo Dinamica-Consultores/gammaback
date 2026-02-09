@@ -72,6 +72,23 @@ class UserController extends AppBaseController
         return view('users.index')
             ->with('users', $users);
     }
+   public function getUsersCompanies($idCompany) 
+{
+    // Realizamos la consulta uniendo las 3 tablas según tu esquema
+    $users = DB::table('users as u')
+        ->join('usuario_grupoeconomicos as ug', 'u.id', '=', 'ug.id_users')
+        ->join('grupo_economicos_empresas as ge', 'ug.id_grupoeconomico', '=', 'ge.id_grupoeconomico')
+        ->where('ge.id_company', $idCompany)
+        ->select(
+            'u.id', 
+            DB::raw("CONCAT(u.name, ' ', u.surname) as nombre_completo, u.email")
+        )
+        ->distinct()
+        ->get();
+
+    // Retornamos el resultado en formato JSON con un código de estado 200
+    return response()->json($users, 200);
+}
 
     /**
      * Show the form for creating a new User.

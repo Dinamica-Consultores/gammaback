@@ -31,13 +31,13 @@ class usuario_grupoeconomicoController extends AppBaseController
      */
     public function index(Request $request)
     {
-        $usuarioGrupoeconomicos = User::SELECT(DB::raw('users.id,users.email,COUNT(usuario_grupoeconomicos.id) as Cantidad'))->join('usuario_grupoeconomicos','usuario_grupoeconomicos.id_users','users.id')->join('grupo_economicos','grupo_economicos.id','usuario_grupoeconomicos.id_grupoeconomico')
+        $usuarioGrupoeconomicos = User::SELECT(DB::raw('users.id,CONCAT(users.name," ",users.surname) as name,users.email,COUNT(usuario_grupoeconomicos.id) as Cantidad'))->join('usuario_grupoeconomicos','usuario_grupoeconomicos.id_users','users.id')->join('grupo_economicos','grupo_economicos.id','usuario_grupoeconomicos.id_grupoeconomico')
         ->where('grupo_economicos.id_estudio',auth()->user()->getIdEstudios());
         if(isset($_GET['query'])){
             $usuarioGrupoeconomicos=$usuarioGrupoeconomicos->whereRaw('CONCAT(name," ",surname) Like ?',array('%'.$_GET['query'].'%'));
            
         }
-        $usuarioGrupoeconomicos= $usuarioGrupoeconomicos->groupByRaw('users.email,users.id');
+        $usuarioGrupoeconomicos= $usuarioGrupoeconomicos->groupByRaw('users.email,users.id,users.surname,users.name');
         $usuarioGrupoeconomicos= $usuarioGrupoeconomicos->paginate(10);
         $usuarioGrupoeconomicos->appends($request->all());
         return view('usuario_grupoeconomicos.index')
@@ -50,8 +50,17 @@ class usuario_grupoeconomicoController extends AppBaseController
     public function create()
     {
         $grupoEconomico=grupo_economicos::where('id_estudio',auth()->user()->getIdEstudios())->join('grupo_economicos_empresas','grupo_economicos_empresas.id_grupoeconomico','grupo_economicos.id')->distinct()->pluck('grupo_economicos.nombre','grupo_economicos.id');
-        $Usuarios=User::Select('users.*')->leftJoin('usuario_grupoeconomicos','usuario_grupoeconomicos.id_users','users.id')->join('estudios_usuarios','estudios_usuarios.id_users','users.id')->where('estudios_usuarios.id_estudios',auth()->user()->getIdEstudios())->whereNull('usuario_grupoeconomicos.id')->pluck('email', 'id');
-        return view('usuario_grupoeconomicos.create')->with('grupoEconomico',$grupoEconomico)->with('usuarios',$Usuarios);
+        $Usuarios = User::select(
+        'users.id',
+        DB::raw("CONCAT(users.name, ' ', users.surname, ' (', users.email, ')') as label_completo")
+    )
+    ->leftJoin('usuario_grupoeconomicos', 'usuario_grupoeconomicos.id_users', '=', 'users.id')
+    ->join('estudios_usuarios', 'estudios_usuarios.id_users', '=', 'users.id')
+    ->where('estudios_usuarios.id_estudios', auth()->user()->getIdEstudios())
+    ->whereNull('usuario_grupoeconomicos.id')
+    ->distinct() // Recomendado para evitar duplicados por los joins
+    ->pluck('label_completo', 'id');
+     return view('usuario_grupoeconomicos.create')->with('grupoEconomico',$grupoEconomico)->with('usuarios',$Usuarios);
     }
 
     /**

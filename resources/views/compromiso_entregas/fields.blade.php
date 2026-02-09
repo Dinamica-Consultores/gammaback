@@ -38,8 +38,7 @@ $(document).ready(function() {
         });
         
     });
-        
-        var multipleCancelButton = new Choices('#id_company', {
+       var multipleCancelButton = new Choices('#id_company', {
             maxItemCount:1,
             itemSelectText:'Selecciona un compañía',  
             placeholder: true, // ¡Cambia esto a true!
@@ -49,13 +48,7 @@ $(document).ready(function() {
             searchResultLimit:5,
             renderChoiceLimit:5,
         })
-        $('#id_company').on('change', function() {
-        const val = $(this).val(); 
-        if(val.length>0){
-
-        }
-    })
-        var multipleCancelButton = new Choices('#usuario', {
+          var multipleCancelButton2 = new Choices('#usuario', {
             maxItemCount:1,
             itemSelectText:'Selecciona un usuario',  
             placeholder: true, // ¡Cambia esto a true!
@@ -65,6 +58,39 @@ $(document).ready(function() {
             searchResultLimit:5,
             renderChoiceLimit:5,
         })
+       function cargarUsuarios(idCompany, idUsuarioSeleccionado = null) {
+        multipleCancelButton2.clearStore(); 
+
+        if (idCompany && idCompany.length > 0) {
+            fetch(`/userCompany/${idCompany}`)
+                .then(response => response.json())
+                .then(data => {
+                    const usersMap = data.map(user => ({
+                        value: user.id,
+                        label: user.nombre_completo + " (" + user.email + ")",
+                        selected: (idUsuarioSeleccionado && user.id == idUsuarioSeleccionado) ? true : false,
+                        disabled: false
+                    }));
+
+                    multipleCancelButton2.setChoices(usersMap, 'value', 'label', true);
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    }
+
+    $('#id_company').on('change', function() {
+        cargarUsuarios($(this).val());
+    });
+
+    // --- CARGA INICIAL (MODO EDICIÓN) ---
+    const idCompanyInicial = $('#id_company').val();
+    const idUsuarioInicial = $('#usuario').val(); 
+
+    if (idCompanyInicial) {
+        cargarUsuarios(idCompanyInicial, idUsuarioInicial);
+    }
+      
+
         
     </script>
 @endpush
