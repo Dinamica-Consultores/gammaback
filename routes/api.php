@@ -49,6 +49,7 @@ Route::controller(App\Http\Controllers\API\in_resultadoAPIController::class)->gr
     Route::prefix('in_resultados')->group(function () {
         
     Route::post('/datoPostModal', 'post_modal');
+    Route::get('/showinformedesdeyhasta/{yeardesde}/{monthdesde}/{yearhasta}/{monthhasta}/{sucursal}', 'showinformedesdeyhasta');
     Route::get('/fullYear/{year}/{sucursal}', 'showDataFullYear');
     Route::get('/{year}/{month}/{sucursal}', 'showDataGroup');
     Route::get('/full/{year}/{month}/{sucursal}', 'showDataFull');
@@ -68,6 +69,7 @@ Route::controller(App\Http\Controllers\API\in_presupuestosAPIController::class)-
     Route::prefix('in_presupuestos')->group(function () {
         Route::post('/datoPostModal', 'post_modal');
     Route::get('/showDataLegal/{year}/{month}/{sucursal}', 'showDataLegal');
+    Route::get('/showinformedesdeyhasta/{yeardesde}/{monthdesde}/{yearhasta}/{monthhasta}/{sucursal}', 'showinformedesdeyhasta');
     Route::get('/{year}/{month}/{sucursal}', 'showDataGroup');
     Route::get('/full/{year}/{month}/{sucursal}', 'showDataFull');
     Route::get('/showInformER/{year}/{month}/{sucursal}', 'showInformER');

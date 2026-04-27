@@ -428,7 +428,7 @@ class in_presupuestosAPIController extends AppBaseController
                 return  $this->sendResponse([], 'No tienes Estudios');
             }
             $id_estudios=$user->getIdEstudios2($user->id);
-            $sqlCheck = in_resultado::SELECT(DB::raw('SUM(in_presupuestos.monto_uyu) as amount_uyu,
+            $sqlCheck = in_presupuestos::SELECT(DB::raw('SUM(in_presupuestos.monto_uyu) as amount_uyu,
             SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
             SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
             SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
@@ -486,6 +486,83 @@ class in_presupuestosAPIController extends AppBaseController
     
             return $this->sendResponse($data, 'In Resultadoss retrieved successfully');
         }
+        public function showinformedesdeyhasta($yeardesde, $monthdesde, $yearhasta, $monthhasta, $sucursal): JsonResponse {
+            $dataSqls = 'SUM(in_presupuestos.monto_uyu) as amount_uyu,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
+        SUM(CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
+        clasificacion_cuenta_resuls.origen,
+        clasificacion_cuenta_resuls.grupo,
+        clasificacion_cuenta_resuls.nivel_1,
+        clasificacion_cuenta_resuls.nivel_2,
+        clasificacion_cuenta_resuls.nivel_3,
+        clasificacion_cuenta_resuls.clasificacion_er,
+        clasificacion_cuenta_resuls.clasificacion_ebit_ebitda,
+        in_presupuestos.ano,
+        in_presupuestos.mes';
+
+            $user = auth()->guard('api')->user();
+            if ($user->getContainestudios2($user->id)) {
+                return $this->sendResponse([], 'No tienes Estudios');
+            }
+
+            $fechaInicio = $yeardesde . '-' . str_pad($monthdesde, 2, "0", STR_PAD_LEFT) . '-01';
+            $fechaFin = $yearhasta . '-' . str_pad($monthhasta, 2, "0", STR_PAD_LEFT) . '-01';
+
+            $sqlCheck = in_presupuestos::select(DB::raw($dataSqls))
+                ->join('excelscompanies', 'excelscompanies.id', 'in_presupuestos.id_excel')
+                ->join('companies', 'companies.id', 'excelscompanies.id_company')
+                 ->leftJoin('tipo_cambios', function($joins)
+            {
+                $joins->on('tipo_cambios.mes','=','in_presupuestos.mes')
+                ->on('tipo_cambios.ano','=','in_presupuestos.ano')
+                ->on('tipo_cambios.id_excel','=','in_presupuestos.id_excel');
+            })
+                ->leftjoin('tipo_cambios_globals', function($join) {
+                    $join->on("tipo_cambios_globals.id_estudio", "=", "companies.id_estudio")
+                        ->on('tipo_cambios_globals.mes', '=', 'in_presupuestos.mes')
+                        ->on('tipo_cambios_globals.ano', '=', 'in_presupuestos.ano');
+                })
+                ->join('clasificacion_cuenta_resuls', function($join) {
+                    $join->on("clasificacion_cuenta_resuls.id_excel", "=", "in_presupuestos.id_excel")
+                        ->on("clasificacion_cuenta_resuls.cuenta", "=", "in_presupuestos.cuenta_master");
+                })
+                ->join('grupo_economicos_empresas', 'grupo_economicos_empresas.id_company', 'companies.id')
+                ->where('grupo_economicos_empresas.id_grupoeconomico', $user->id_group_show);
+            $sqlCheck = $sqlCheck->whereRaw("DATE(CONCAT(in_presupuestos.ano, '-', in_presupuestos.mes, '-01')) BETWEEN ? AND ?", [$fechaInicio, $fechaFin]);
+
+            if ($user->id_company_show > 0) {
+                $sqlCheck = $sqlCheck->where('grupo_economicos_empresas.id_company', $user->id_company_show);
+            }
+if($sucursal>0){
+            $sucursalas = sucursales::find($sucursal);
+            $sqlCheck=$sqlCheck->join('sucursales',function($join){
+                $join->on("sucursales.id_excel","=","in_resultados.id_excel")
+                    ->on("sucursales.nombre","=","in_resultados.sucursal");
+            });
+            $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
+        }
+
+            $data = $sqlCheck->groupByRaw('
+                    clasificacion_cuenta_resuls.origen, 
+                    clasificacion_cuenta_resuls.grupo, 
+                    clasificacion_cuenta_resuls.nivel_1, 
+                    clasificacion_cuenta_resuls.nivel_2, 
+                    clasificacion_cuenta_resuls.nivel_3, 
+                    clasificacion_cuenta_resuls.clasificacion_er, 
+                    clasificacion_cuenta_resuls.clasificacion_ebit_ebitda,
+                    in_presupuestos.ano, 
+                    in_presupuestos.mes')
+                ->orderByRaw('in_presupuestos.ano ASC, in_presupuestos.mes ASC, clasificacion_cuenta_resuls.id ASC')
+                ->get();
+
+            return $this->sendResponse(['actual' => $data], 'Datos recuperados desde ' . $fechaInicio . ' hasta ' . $fechaFin);
+    }
     public function showInformER($year,$month,$sucursal):JsonResponse
     {
         $user =auth()->guard('api')->user();
