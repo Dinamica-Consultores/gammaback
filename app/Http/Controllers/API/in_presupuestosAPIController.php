@@ -542,8 +542,8 @@ class in_presupuestosAPIController extends AppBaseController
 if($sucursal>0){
             $sucursalas = sucursales::find($sucursal);
             $sqlCheck=$sqlCheck->join('sucursales',function($join){
-                $join->on("sucursales.id_excel","=","in_resultados.id_excel")
-                    ->on("sucursales.nombre","=","in_resultados.sucursal");
+                $join->on("sucursales.id_excel","=","in_presupuestos.id_excel")
+                    ->on("sucursales.nombre","=","in_presupuestos.sucursal");
             });
             $sqlCheck=$sqlCheck->where('sucursales.nombre',$sucursalas->nombre);
         }
