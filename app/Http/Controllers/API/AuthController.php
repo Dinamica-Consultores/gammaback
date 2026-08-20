@@ -129,25 +129,33 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         try {
-            $user =auth()->guard('api')->user();
-
-            // Revoke all of the user's tokens...
-            $user->tokens->each(function ($token, $key) {
-                $token->delete();
-            });
-            sessiones::insert([
-                'user_id' => $user->id,
-                'opcion' => 'Logout',
-                'created_at'=>Carbon::now()
-            ]);
-            return response()->json(['message' => 'Successfully logged out']);
+            // Intentar obtener el usuario de la petición/bearer token
+            $user = auth()->guard('api')->user();
+    
+            if ($user) {
+                // Revocar únicamente el token activo
+                if ($user->token()) {
+                    $user->token()->revoke();
+                }
+    
+                // Registrar log de sesión
+                sessiones::insert([
+                    'user_id' => $user->id,
+                    'opcion'  => 'Logout',
+                    'created_at' => Carbon::now()
+                ]);
+            }
+    
+            return response()->json([
+                'message' => 'Successfully logged out'
+            ], 200);
+    
         } catch (\Exception $e) {
             info($e);
-            // Handle other exceptions
+            // Responder siempre 200 OK en logout para no trancar al cliente si el token ya no existe
             return response()->json([
-                'message' => 'Logout failed due to an unexpected error.',
-                'error' => $e->getMessage(),
-            ], 500);
+                'message' => 'Token expirado o inexistente',
+            ], 200);
         }
     }
 
