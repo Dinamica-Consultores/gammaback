@@ -24,6 +24,7 @@ use App\Models\in_ventas;
 use App\Models\setup_analisis;
 use App\Models\tipo_cambio;
 use App\Models\controlcuentas;
+use App\Models\EspacioFiscal;
 
 class excelscompanyController extends AppBaseController
 {
@@ -33,6 +34,7 @@ class excelscompanyController extends AppBaseController
     public function __construct(excelscompanyRepository $excelscompanyRepo)
     {
         
+        $this->middleware('auth');
         $this->excelscompanyRepository = $excelscompanyRepo;
 
     }
@@ -140,7 +142,10 @@ class excelscompanyController extends AppBaseController
             {
                 $RetornoIN_BALANCE=in_balance::insert($t);
             }
-     
+            $DataESPACIO_FISCAL = $this->dataReturnESPACIO_FISCAL($dataarray, $excelscompany->id);
+            foreach (array_chunk($DataESPACIO_FISCAL, 1000) as $t) {
+                $RetornoESPACIO_FISCAL = EspacioFiscal::insert($t);
+            }
             $cuentasResultados = DB::select('SELECT DISTINCT in_resultados.cuenta_master as cuenta, "Resultado" as tipo,in_resultados.id_excel FROM in_resultados LEFT JOIN clasificacion_cuenta_resuls ON clasificacion_cuenta_resuls.cuenta=in_resultados.cuenta_master AND clasificacion_cuenta_resuls.id_excel= in_resultados.id_excel WHERE clasificacion_cuenta_resuls.cuenta is null  AND in_resultados.id_excel=  ?',[$excelscompany->id]);         
             info( $this->valorCargaControlCuentas($cuentasResultados));
             foreach (array_chunk($this->valorCargaControlCuentas($cuentasResultados),1000) as $t)  
@@ -332,6 +337,26 @@ class excelscompanyController extends AppBaseController
         array_shift($dataRetorno);
         return $dataRetorno;
     }
+    public function dataReturnESPACIO_FISCAL($dataarray, $idExcelCompany)
+    {
+        $func = function($valor) use ($idExcelCompany) {
+            return [
+                'ano'             => $valor[0] == NULL ? '' : $valor[0],
+                'mes'             => $valor[1] == NULL ? '' : $valor[1],
+                'nivel_3' => $valor[2] == NULL ? '' : $valor[2],
+                'ajusta'          => $valor[3] == NULL ? '' : $valor[3],
+                'tipo'            => $valor[4] == NULL ? '' : $valor[4],
+                'operador'        => $valor[5] == NULL ? '' : $valor[5],
+                'signo'           => $valor[6] == NULL ? '' : $valor[6], // Columna G en Excel
+                'monto_valor'     => $valor[7] == NULL ? '' : str_replace(',', '', $valor[7]), // Columna H
+                'sucursal'        => $valor[8] == NULL ? '' : $valor[8], // Columna I
+                'id_excel'        => $idExcelCompany
+            ];
+        };
+        $dataRetorno = array_map($func, $dataarray['ESPACIO FISCAL']); // Asegúrate de que el nombre de la pestaña coincida exactamente
+        array_shift($dataRetorno); // Elimina la fila de encabezados
+        return $dataRetorno;
+    }
     public function valorCargaControlCuentas($dataarray){
         $func = function($valor)  {
             return [
@@ -430,8 +455,8 @@ class excelscompanyController extends AppBaseController
         $in_ventasDelete=in_ventas::where('id_excel',$idExcelCompany)->delete();
         $categorizacion_cts_balanceDelete=categorizacion_cts_balance::where('id_excel',$idExcelCompany)->delete();
         $in_balanceDelete=in_balance::where('id_excel',$idExcelCompany)->delete();
+        $espacio_fiscalDelete = EspacioFiscal::where('id_excel', $idExcelCompany)->delete();
         $controldecuentas=controlcuentas::where('id_excel',$idExcelCompany)->delete();
-
     }
     public function DeleteAllByIDCompany($idExcelCompany){
         $SucursalesDelete=sucursales::join('excelscompanies','excelscompanies.id','sucursales.id_excel')->where('excelscompanies.id_company',$idExcelCompany)->delete();
@@ -444,7 +469,9 @@ class excelscompanyController extends AppBaseController
         $categorizacion_cts_balanceDelete=categorizacion_cts_balance::join('excelscompanies','excelscompanies.id','categorizacion_cts_balances.id_excel')->where('excelscompanies.id_company',$idExcelCompany)->delete();
         $in_balanceDelete=in_balance::join('excelscompanies','excelscompanies.id','in_balances.id_excel')->where('excelscompanies.id_company',$idExcelCompany)->delete();
         $controldecuentas=controlcuentas::join('excelscompanies','excelscompanies.id','controlcuentas.id_excel')->where('excelscompanies.id_company',$idExcelCompany)->delete();
+        $espacio_fiscalDelete = EspacioFiscal::join('excelscompanies', 'excelscompanies.id', 'espacio_fiscals.id_excel')->where('excelscompanies.id_company', $idExcelCompany)->delete();
         $excelCompanye=excelscompany::where('id_company',$idExcelCompany)->delete();
+        
     }
     /**
      * Remove the specified excelscompany from storage.

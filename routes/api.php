@@ -94,6 +94,13 @@ Route::controller(App\Http\Controllers\API\tipo_documentoAPIController::class)->
         Route::get('/', 'getAllTipoDocumentos');
     });
 });
+Route::controller(App\Http\Controllers\API\EspacioFiscalAPIController::class)->group(function () {
+    Route::prefix('espacio-fiscals')->group(function () {
+        Route::get('/by-fecha', 'getByFecha');
+        Route::get('/showReporteRealvsPresupuestoFiscal', 'showReporteRealvsPresupuestoFiscal');
+        Route::get('/showReporteBalance', 'showReporteBalance');
+    });
+});
 Route::controller(App\Http\Controllers\API\documento_companiaAPIController::class)->group(function () {
     Route::prefix('documento_companias')->group(function () {
     Route::get('/', 'getAllDocumentosCompanias');
@@ -144,4 +151,7 @@ Route::resource('compromiso_entregas', App\Http\Controllers\API\compromiso_entre
 Route::resource('documento_companias', App\Http\Controllers\API\documento_companiaAPIController::class)
     ->except(['create', 'edit']);*/
 Route::resource('bitacoras_envios_documentos', App\Http\Controllers\API\bitacoras_envios_documentoAPIController::class)
+    ->except(['create', 'edit']);
+
+Route::resource('espacio-fiscals', App\Http\Controllers\API\EspacioFiscalAPIController::class)
     ->except(['create', 'edit']);
