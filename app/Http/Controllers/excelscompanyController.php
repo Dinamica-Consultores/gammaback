@@ -343,7 +343,7 @@ class excelscompanyController extends AppBaseController
             return [
                 'ano'             => $valor[0] == NULL ? '' : $valor[0],
                 'mes'             => $valor[1] == NULL ? '' : $valor[1],
-                'nivel_3' => $valor[2] == NULL ? '' : $valor[2],
+                'nivel_3'         => $valor[2] == NULL ? '' : $valor[2],
                 'ajusta'          => $valor[3] == NULL ? '' : $valor[3],
                 'tipo'            => $valor[4] == NULL ? '' : $valor[4],
                 'operador'        => $valor[5] == NULL ? '' : $valor[5],
