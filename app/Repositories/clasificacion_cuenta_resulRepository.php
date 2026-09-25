@@ -18,6 +18,8 @@ class clasificacion_cuenta_resulRepository extends BaseRepository
         'clasificacion_punto_equilibrio',
         'clasificacion_cuenta_juridica_legal',
         'clasificacion_ebit_ebitda',
+        'espacio_fiscal_ajuste',
+        'irae',
         'id_company',
         'id_excel'
     ];

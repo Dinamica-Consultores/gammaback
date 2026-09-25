@@ -3,10 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
- use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class clasificacion_cuenta_resul extends Model
 {
-     public $table = 'clasificacion_cuenta_resuls';
+    public $table = 'clasificacion_cuenta_resuls';
 
     public $fillable = [
         'cuenta',
@@ -21,7 +22,8 @@ class clasificacion_cuenta_resul extends Model
         'clasificacion_cuenta_juridica_legal',
         'clasificacion_ebit_ebitda',
         'clasificacion_er',
-        
+        'espacio_fiscal_ajuste',
+        'irae',
         'id_excel'
     ];
 
@@ -38,6 +40,8 @@ class clasificacion_cuenta_resul extends Model
         'clasificacion_cuenta_juridica_legal' => 'string',
         'clasificacion_ebit_ebitda' => 'string',
         'clasificacion_er' => 'string',
+        'espacio_fiscal_ajuste' => 'string',
+        'irae' => 'string',
         'id_excel' => 'integer'
     ];
 
@@ -54,8 +58,11 @@ class clasificacion_cuenta_resul extends Model
         'clasificacion_cuenta_juridica_legal' => 'required',
         'clasificacion_ebit_ebitda' => 'required',
         'clasificacion_er' => 'required',
+        'espacio_fiscal_ajuste' => 'nullable|string',
+        'irae' => 'nullable|string',
         'id_excel' => 'required|exists:excelscompany,id'
     ];
+
     public function excel() {
         return $this->hasOne(excelscompany::class,'id','id_excel');
     }

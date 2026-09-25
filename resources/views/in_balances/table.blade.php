@@ -21,8 +21,8 @@
                     <td>{{ $inBalance->sucursal }}</td>
                     <td>{{ $inBalance->cuenta_master }}</td>
                     <td>{{ $inBalance->saldo_uyu }}</td>
-                    <td>{{ $inBalance->excel->company->razon_social }}</td>
-                    <td>{{ $inBalance->excel->version }}</td>
+                    <td>{{ $inBalance->excel?->company?->razon_social }}</td>
+                    <td>{{ $inBalance->excel?->version }}</td>
                     <td  style="width: 120px">
                         {!! Form::open(['route' => ['in_balances.destroy', $inBalance->id], 'method' => 'delete']) !!}
                         <div class='btn-group'>

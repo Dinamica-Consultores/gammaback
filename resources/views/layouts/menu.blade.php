@@ -122,12 +122,6 @@
         <p>In Ventas</p>
     </a>
 </li>
-<li class="nav-item">
-    <a href="{{ route('espacio-fiscals.index') }}" class="nav-link {{ Request::is('espacio-fiscals*') ? 'active' : '' }}">
-        <i class="nav-icon 	fas fa-file-upload"></i>
-        <p>Espacio Fiscales</p>
-    </a>
-</li>
 
     </ul>
     

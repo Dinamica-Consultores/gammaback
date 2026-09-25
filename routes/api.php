@@ -42,6 +42,7 @@ Route::controller(App\Http\Controllers\API\in_balanceAPIController::class)->grou
     Route::get('EstadoSitacion/{year}/{month}/{yearCierre}/{monthCierre}/{sucursal}', 'showEstadoSitacionPatrim');
     Route::get('showDataEvolutivo/{year}/{month}/{sucursal}', 'showDataEvolutivo');
     Route::get('showEstadoDash/{year}/{month}/{sucursal}', 'showEstadoDash');
+    Route::get('EspaciosFiscalData/{year}/{month}/{sucursal}', 'espacioFiscal');
     
     });
 });
@@ -62,6 +63,7 @@ Route::controller(App\Http\Controllers\API\in_resultadoAPIController::class)->gr
     Route::get('/er/{year}/{month}/{sucursal}', 'showDataGroupEstadosResult');
     Route::get('/ebitda7Monthbefore/{sucursal}', 'showDataGroupEbitda7month');
     Route::get('/showEstadisticas/{sucursal}', 'showEstadisticas');
+    Route::get('EspaciosFiscalData/{year}/{month}/{sucursal}', 'espacioFiscal');
     
     });
 });
@@ -92,13 +94,6 @@ Route::controller(App\Http\Controllers\API\grupo_economicos_empresasAPIControlle
 Route::controller(App\Http\Controllers\API\tipo_documentoAPIController::class)->group(function () {
     Route::prefix('tipo_documentos')->group(function () {
         Route::get('/', 'getAllTipoDocumentos');
-    });
-});
-Route::controller(App\Http\Controllers\API\EspacioFiscalAPIController::class)->group(function () {
-    Route::prefix('espacio-fiscals')->group(function () {
-        Route::get('/by-fecha', 'getByFecha');
-        Route::get('/showReporteRealvsPresupuestoFiscal', 'showReporteRealvsPresupuestoFiscal');
-        Route::get('/showReporteBalance', 'showReporteBalance');
     });
 });
 Route::controller(App\Http\Controllers\API\documento_companiaAPIController::class)->group(function () {
@@ -151,7 +146,4 @@ Route::resource('compromiso_entregas', App\Http\Controllers\API\compromiso_entre
 Route::resource('documento_companias', App\Http\Controllers\API\documento_companiaAPIController::class)
     ->except(['create', 'edit']);*/
 Route::resource('bitacoras_envios_documentos', App\Http\Controllers\API\bitacoras_envios_documentoAPIController::class)
-    ->except(['create', 'edit']);
-
-Route::resource('espacio-fiscals', App\Http\Controllers\API\EspacioFiscalAPIController::class)
     ->except(['create', 'edit']);

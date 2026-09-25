@@ -17,6 +17,7 @@ class categorizacion_cts_balanceRepository extends BaseRepository
         'nivel_4',
         'posicion_moneda',
         'posicion_fiscal',
+        'espacio_fiscal_ajuste',
         'id_company',
         'id_excel'
     ];

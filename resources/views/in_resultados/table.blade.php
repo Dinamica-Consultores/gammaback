@@ -21,8 +21,8 @@
                     <td>{{ $inResultado->sucursal }}</td>
                     <td>{{ $inResultado->cuenta_master }}</td>
                     <td>{{ $inResultado->monto_uyu }}</td>
-                    <td>{{ $inResultado->excel->company->razon_social }}</td>
-                    <td>{{ $inResultado->excel->version }}</td>
+                    <td>{{ $inResultado->excel?->company?->razon_social }}</td>
+                    <td>{{ $inResultado->excel?->version }}</td>
                     <td  style="width: 120px">
                         {!! Form::open(['route' => ['in_resultados.destroy', $inResultado->id], 'method' => 'delete']) !!}
                         <div class='btn-group'>

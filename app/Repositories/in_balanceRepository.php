@@ -14,6 +14,9 @@ class in_balanceRepository extends BaseRepository
         'cuenta_master',
         'saldo_uyu',
         'monto_uyu',
+        'operador',
+        'signo',
+        'monto_valor',
         'id_company',
         'id_excel'
     ];

@@ -3,10 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
- use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class in_balance extends Model
 {
-      public $table = 'in_balances';
+    public $table = 'in_balances';
 
     public $fillable = [
         'mes',
@@ -14,6 +15,9 @@ class in_balance extends Model
         'sucursal',
         'cuenta_master',
         'saldo_uyu',
+        'operador',
+        'signo',
+        'monto_valor',
         'id_excel'
     ];
 
@@ -23,6 +27,9 @@ class in_balance extends Model
         'sucursal' => 'string',
         'cuenta_master' => 'string',
         'saldo_uyu' => 'string',
+        'operador' => 'string',
+        'signo' => 'string',
+        'monto_valor' => 'decimal:2',
         'id_excel' => 'integer'
     ];
 
@@ -32,10 +39,13 @@ class in_balance extends Model
         'sucursal' => 'required',
         'cuenta_master' => 'required',
         'saldo_uyu' => 'required',
+        'operador' => 'nullable|string',
+        'signo' => 'nullable|string|max:2',
+        'monto_valor' => 'nullable|numeric',
         'id_excel' => 'required|exists:excelscompany,id'
     ];
+
     public function excel() {
         return $this->hasOne(excelscompany::class,'id','id_excel');
     }
-    
 }

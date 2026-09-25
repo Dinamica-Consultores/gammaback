@@ -70,7 +70,6 @@ Route::resource('tipo_cambios_globals', App\Http\Controllers\tipo_cambios_global
 Route::resource('compromiso_entregas', App\Http\Controllers\compromiso_entregaController::class);
 Route::post('/compromiso_entregas/procesar-datos', [App\Http\Controllers\compromiso_entregaController::class, 'procesar'])->name('compromiso.registro');
 
-Route::resource('espacio-fiscals', App\Http\Controllers\EspacioFiscalController::class);
 });
 Route::get('/getAllCompromisoEntregar', [App\Http\Controllers\compromiso_entregaController::class, 'getAllCompromisoEntregar']);
 Route::get('documentos/descargar/{id}', [\App\Http\Controllers\documento_companiaController::class, 'download'])->name('documento_companias.download');

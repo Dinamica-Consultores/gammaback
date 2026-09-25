@@ -3,7 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
- use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class categorizacion_cts_balance extends Model
 {
     public $table = 'categorizacion_cts_balances';
@@ -19,6 +20,7 @@ class categorizacion_cts_balance extends Model
         'posicion_moneda',
         'posicion_fiscal',
         'posicion_socios',
+        'espacio_fiscal_ajuste',
         'id_excel'
     ];
 
@@ -33,6 +35,7 @@ class categorizacion_cts_balance extends Model
         'posicion_moneda' => 'string',
         'posicion_fiscal' => 'string',
         'posicion_socios' => 'string',
+        'espacio_fiscal_ajuste' => 'string',
         'id_excel' => 'integer'
     ];
 
@@ -47,6 +50,7 @@ class categorizacion_cts_balance extends Model
         'posicion_moneda' => 'required',
         'posicion_fiscal' => 'required',
         'posicion_socios' => 'required',
+        'espacio_fiscal_ajuste' => 'nullable|string',
         'id_excel' => 'required|exists:excelscompany,id'
     ];
 

@@ -38,6 +38,111 @@ class in_balanceAPIController extends AppBaseController
 
         return $this->sendResponse($inBalances->toArray(), 'In Balances retrieved successfully');
     }
+    public function espacioFiscal($year,$month,$sucursal):JsonResponse
+    {
+        $selectGlobal='CAST(in_balances.saldo_uyu AS DECIMAL(18,3)) as amount_uyu,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) ) as amount_uyu_dolar_compra,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
+        (CAST(in_balances.saldo_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa';
+        $selectData=$selectGlobal.',
+        categorizacion_cts_balances.nivel_3,
+        categorizacion_cts_balances.nivel_1,
+        categorizacion_cts_balances.nombre,
+        categorizacion_cts_balances.cuenta,
+        in_balances.operador,
+        in_balances.signo,
+        in_balances.monto_valor,
+        in_balances.mes,
+        in_balances.ano';
+        $user =auth()->guard('api')->user();
+        if($user->getContainestudios2($user->id)){
+            return  $this->sendResponse([], 'No tienes Estudios');
+        }
+        $id_estudios=$user->getIdEstudios2($user->id);
+        // -------------------------------------------------------------
+        // Query Base con todas las condiciones y joins comunes
+        // -------------------------------------------------------------
+        $sqlBase = in_balance::join('excelscompanies', 'excelscompanies.id', 'in_balances.id_excel')
+            ->join('companies', 'companies.id', 'excelscompanies.id_company')
+            ->leftJoin('tipo_cambios', function ($join) {
+                $join->on('tipo_cambios.mes', '=', 'in_balances.mes')
+                    ->on('tipo_cambios.ano', '=', 'in_balances.ano')
+                    ->on('tipo_cambios.id_excel', '=', 'in_balances.id_excel');
+            })
+            ->leftJoin('tipo_cambios_globals', function ($join) {
+                $join->on("tipo_cambios_globals.id_estudio", "=", "companies.id_estudio")
+                    ->on('tipo_cambios_globals.mes', '=', 'in_balances.mes')
+                    ->on('tipo_cambios_globals.ano', '=', 'in_balances.ano');
+            })
+            ->join('categorizacion_cts_balances', function ($join) {
+                $join->on("categorizacion_cts_balances.id_excel", "=", "in_balances.id_excel")
+                    ->on("categorizacion_cts_balances.cuenta", "=", "in_balances.cuenta_master");
+            })
+            ->join('grupo_economicos_empresas', 'grupo_economicos_empresas.id_company', 'companies.id')
+            ->join('usuario_grupoeconomicos', 'usuario_grupoeconomicos.id_grupoeconomico', 'grupo_economicos_empresas.id_grupoeconomico')
+            ->where('grupo_economicos_empresas.id_grupoeconomico', $user->id_group_show)
+            ->where('usuario_grupoeconomicos.id_users', $user->id);
+
+        if ($user->id_company_show > 0) {
+            $sqlBase->where('grupo_economicos_empresas.id_company', $user->id_company_show);
+        }
+
+        if ($sucursal > 0) {
+            $sucursalas = sucursales::find($sucursal);
+            $sqlBase->join('sucursales', function ($join) {
+                $join->on("sucursales.id_excel", "=", "in_balances.id_excel")
+                    ->on("sucursales.nombre", "=", "in_balances.sucursal");
+            })->where('sucursales.nombre', $sucursalas->nombre);
+        }
+
+        if ($year > 0 && $month > 0) {
+            $sqlBase->where('in_balances.mes', $month)
+                    ->where('in_balances.ano', $year);
+        } else {
+            return $this->sendResponse([], 'In Balances retrieved successfully');  
+        }
+        $sqlDataEspacio = (clone $sqlBase)
+            ->select(DB::raw($selectData))
+            ->where('categorizacion_cts_balances.espacio_fiscal_ajuste', 'Si')->whereIn(DB::raw('UPPER(categorizacion_cts_balances.nivel_1)'), ['PASIVO', 'ACTIVO']);
+
+
+        $DataEspacioFiscal=$sqlDataEspacio->get();
+        
+        $company = \App\Models\company::find($user->id_company_show);
+
+        // 2. Si no existe, tomar la primera compañía perteneciente al grupo económico del usuario
+        if (!$company) {
+            $company = \App\Models\company::query()
+                ->select('companies.*')
+                ->join('grupo_economicos_empresas', 'grupo_economicos_empresas.id_company', '=', 'companies.id')
+                ->join('usuario_grupoeconomicos', 'usuario_grupoeconomicos.id_grupoeconomico', '=', 'grupo_economicos_empresas.id_grupoeconomico')
+                ->where('grupo_economicos_empresas.id_grupoeconomico', $user->id_group_show)
+                ->first();
+        }
+        
+        // 3. Extraer las propiedades requeridas
+        $porcentajeIpat = $company ? (float) $company->porcentaje_ipat : 0;
+        $cuentaAnticiposIpat = $company ? $company->cuenta_anticipos_ipat : null;
+        $sumaAnticiposIpat = null;
+        if (!empty($cuentaAnticiposIpat)) {
+            $queryIpat = (clone $sqlBase)
+                ->select(DB::raw($selectGlobal))
+                ->where('in_balances.cuenta_master', $cuentaAnticiposIpat);
+
+            $sumaAnticiposIpat = $queryIpat->first();
+        }
+        $data = [
+            'espacio_fiscal'               => $DataEspacioFiscal,
+            'porcentaje_ipat'              => $porcentajeIpat,
+            'suma_cuenta_anticipos_ipat'   => $sumaAnticiposIpat
+        ];
+        return $this->sendResponse($data, 'Espacio Fiscales');  
+    }
     public function showEstadoDash($year,$month,$sucursal):JsonResponse
     {
         $select='SUM(CAST(in_balances.saldo_uyu AS DECIMAL(18,3))) as amount_uyu,

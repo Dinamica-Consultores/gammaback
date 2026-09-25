@@ -15,6 +15,9 @@ class in_resultadoRepository extends BaseRepository
         'monto_uyu',
         'monto_uyu_sinajuste_corriente',
         'monto_enuyu_sinajuste_corriente',
+        'operador',
+        'signo',
+        'monto_valor',
         'id_company',
         'id_excel'
     ];

@@ -40,7 +40,390 @@ class in_resultadoAPIController extends AppBaseController
 
         return $this->sendResponse($inResultados->toArray(), 'In Resultados retrieved successfully');
     }
+    public function espacioFiscal($year, $month, $sucursal): JsonResponse
+    {
+        $user = auth()->guard('api')->user();
+        if ($user->getContainestudios2($user->id)) {
+            return $this->sendResponse([], 'No tienes Estudios');
+        }
 
+        // 1. Obtener la compañía para determinar su inicio de ejercicio fiscal
+        $company = \App\Models\company::find($user->id_company_show);
+        if (!$company) {
+            $company = \App\Models\company::query()
+                ->select('companies.*')
+                ->join('grupo_economicos_empresas', 'grupo_economicos_empresas.id_company', '=', 'companies.id')
+                ->join('usuario_grupoeconomicos', 'usuario_grupoeconomicos.id_grupoeconomico', '=', 'grupo_economicos_empresas.id_grupoeconomico')
+                ->where('grupo_economicos_empresas.id_grupoeconomico', $user->id_group_show)
+                ->first();
+        }
+
+        $monthfiscal = ($company && !empty($company->mes)) ? (int)$company->mes : 1;
+
+        if ((int)$month >= $monthfiscal) {
+            $yearStart = (int)$year;
+        } else {
+            $yearStart = (int)$year - 1;
+        }
+
+        $fechaInicio = $yearStart . '-' . str_pad($monthfiscal, 2, "0", STR_PAD_LEFT) . '-01';
+        $fechaFin = $year . '-' . str_pad($month, 2, "0", STR_PAD_LEFT) . '-01';
+
+        $fechaFinFiscalDT = (new \DateTime($fechaInicio))->modify('+11 months');
+        $fechaFinFiscal = $fechaFinFiscalDT->format('Y-m-01');
+
+        $fechaInicioPresupuestoDT = (new \DateTime($fechaFin))->modify('+1 month');
+        $fechaInicioPresupuesto = $fechaInicioPresupuestoDT->format('Y-m-01');
+
+        if ($year <= 0 || $month <= 0) {
+            return $this->sendResponse([], 'In Resultados retrieved successfully');
+        }
+
+        // -------------------------------------------------------------
+        // Query 1 & 2: Espacio Fiscal (Desglosado por Cuentas)
+        // -------------------------------------------------------------
+        $selectResultados = "
+            'in_resultados' as tipo,
+            (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))) as amount_uyu,
+            (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3))) as amount_uyu_dolar_compra,
+            (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
+            (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
+            (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
+            (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
+            (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
+            (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
+            (CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
+            clasificacion_cuenta_resuls.nivel_3,
+            clasificacion_cuenta_resuls.grupo,
+            clasificacion_cuenta_resuls.nombre,
+            clasificacion_cuenta_resuls.cuenta,
+            in_resultados.operador,
+            in_resultados.signo,
+            in_resultados.monto_valor,
+            in_resultados.mes,
+            in_resultados.ano
+        ";
+
+        $queryResultados = DB::table('in_resultados')
+            ->join('excelscompanies', 'excelscompanies.id', 'in_resultados.id_excel')
+            ->join('companies', 'companies.id', 'excelscompanies.id_company')
+            ->leftJoin('tipo_cambios', function ($join) {
+                $join->on('tipo_cambios.mes', '=', 'in_resultados.mes')
+                    ->on('tipo_cambios.ano', '=', 'in_resultados.ano')
+                    ->on('tipo_cambios.id_excel', '=', 'in_resultados.id_excel');
+            })
+            ->leftJoin('tipo_cambios_globals', function ($join) {
+                $join->on("tipo_cambios_globals.id_estudio", "=", "companies.id_estudio")
+                    ->on('tipo_cambios_globals.mes', '=', 'in_resultados.mes')
+                    ->on('tipo_cambios_globals.ano', '=', 'in_resultados.ano');
+            })
+            ->join('clasificacion_cuenta_resuls', function ($join) {
+                $join->on("clasificacion_cuenta_resuls.id_excel", "=", "in_resultados.id_excel")
+                    ->on("clasificacion_cuenta_resuls.cuenta", "=", "in_resultados.cuenta_master");
+            })
+            ->join('grupo_economicos_empresas', 'grupo_economicos_empresas.id_company', 'companies.id')
+            ->join('usuario_grupoeconomicos', 'usuario_grupoeconomicos.id_grupoeconomico', 'grupo_economicos_empresas.id_grupoeconomico')
+            ->where('grupo_economicos_empresas.id_grupoeconomico', $user->id_group_show)
+            ->where('usuario_grupoeconomicos.id_users', $user->id)
+            ->whereRaw("DATE(CONCAT(in_resultados.ano, '-', in_resultados.mes, '-01')) BETWEEN ? AND ?", [$fechaInicio, $fechaFin])
+            ->where('clasificacion_cuenta_resuls.espacio_fiscal_ajuste', 'Si');
+
+        if ($user->id_company_show > 0) {
+            $queryResultados->where('grupo_economicos_empresas.id_company', $user->id_company_show);
+        }
+
+        if ($sucursal > 0) {
+            $sucursalas = sucursales::find($sucursal);
+            if ($sucursalas) {
+                $queryResultados->join('sucursales', function ($join) {
+                    $join->on("sucursales.id_excel", "=", "in_resultados.id_excel")
+                        ->on("sucursales.nombre", "=", "in_resultados.sucursal");
+                })->where('sucursales.nombre', $sucursalas->nombre);
+            }
+        }
+
+        $queryResultados->select(DB::raw($selectResultados));
+
+        $selectPresupuesto = "
+            'in_presupuesto' as tipo,
+            (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))) as amount_uyu,
+            (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3))) as amount_uyu_dolar_compra,
+            (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3))) as amount_uyu_dolar_venta,
+            (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3))) as amount_uyu_dolar_promedio,
+            (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3))) as amount_uyu_euro_promedio,
+            (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3))) as amount_uyu_francosuizo_promedio,
+            (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3))) as amount_uyu_ui,
+            (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3))) as amount_uyu_ipc,
+            (CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3))) as amount_uyu_ipc_empresa,
+            clasificacion_cuenta_resuls.nivel_3,
+            clasificacion_cuenta_resuls.grupo,
+            clasificacion_cuenta_resuls.nombre,
+            clasificacion_cuenta_resuls.cuenta,
+            in_presupuestos.operador,
+            in_presupuestos.signo,
+            in_presupuestos.monto_valor,
+            in_presupuestos.mes,
+            in_presupuestos.ano
+        ";
+
+        $queryPresupuesto = DB::table('in_presupuestos')
+            ->join('excelscompanies', 'excelscompanies.id', 'in_presupuestos.id_excel')
+            ->join('companies', 'companies.id', 'excelscompanies.id_company')
+            ->leftJoin('tipo_cambios', function ($join) {
+                $join->on('tipo_cambios.mes', '=', 'in_presupuestos.mes')
+                    ->on('tipo_cambios.ano', '=', 'in_presupuestos.ano')
+                    ->on('tipo_cambios.id_excel', '=', 'in_presupuestos.id_excel');
+            })
+            ->leftJoin('tipo_cambios_globals', function ($join) {
+                $join->on("tipo_cambios_globals.id_estudio", "=", "companies.id_estudio")
+                    ->on('tipo_cambios_globals.mes', '=', 'in_presupuestos.mes')
+                    ->on('tipo_cambios_globals.ano', '=', 'in_presupuestos.ano');
+            })
+            ->join('clasificacion_cuenta_resuls', function ($join) {
+                $join->on("clasificacion_cuenta_resuls.id_excel", "=", "in_presupuestos.id_excel")
+                    ->on("clasificacion_cuenta_resuls.cuenta", "=", "in_presupuestos.cuenta_master");
+            })
+            ->join('grupo_economicos_empresas', 'grupo_economicos_empresas.id_company', 'companies.id')
+            ->join('usuario_grupoeconomicos', 'usuario_grupoeconomicos.id_grupoeconomico', 'grupo_economicos_empresas.id_grupoeconomico')
+            ->where('grupo_economicos_empresas.id_grupoeconomico', $user->id_group_show)
+            ->where('usuario_grupoeconomicos.id_users', $user->id)
+            ->whereRaw("DATE(CONCAT(in_presupuestos.ano, '-', in_presupuestos.mes, '-01')) BETWEEN ? AND ?", [$fechaInicioPresupuesto, $fechaFinFiscal])
+            ->where('clasificacion_cuenta_resuls.espacio_fiscal_ajuste', 'Si');
+
+        if ($user->id_company_show > 0) {
+            $queryPresupuesto->where('grupo_economicos_empresas.id_company', $user->id_company_show);
+        }
+
+        if ($sucursal > 0) {
+            $sucursalas = sucursales::find($sucursal);
+            if ($sucursalas) {
+                $queryPresupuesto->join('sucursales', function ($join) {
+                    $join->on("sucursales.id_excel", "=", "in_presupuestos.id_excel")
+                        ->on("sucursales.nombre", "=", "in_presupuestos.sucursal");
+                })->where('sucursales.nombre', $sucursalas->nombre);
+            }
+        }
+
+        $queryPresupuesto->select(DB::raw($selectPresupuesto));
+
+        $DataEspacioFiscal = $queryResultados->unionAll($queryPresupuesto)->get();
+
+        // -------------------------------------------------------------
+        // Query 3: exonPI (Consolidado idéntico a Anticipos IRAE)
+        // -------------------------------------------------------------
+        $qExonResultados = DB::table('in_resultados')
+            ->join('excelscompanies', 'excelscompanies.id', 'in_resultados.id_excel')
+            ->join('companies', 'companies.id', 'excelscompanies.id_company')
+            ->leftJoin('tipo_cambios', function ($join) {
+                $join->on('tipo_cambios.mes', '=', 'in_resultados.mes')
+                    ->on('tipo_cambios.ano', '=', 'in_resultados.ano')
+                    ->on('tipo_cambios.id_excel', '=', 'in_resultados.id_excel');
+            })
+            ->leftJoin('tipo_cambios_globals', function ($join) {
+                $join->on("tipo_cambios_globals.id_estudio", "=", "companies.id_estudio")
+                    ->on('tipo_cambios_globals.mes', '=', 'in_resultados.mes')
+                    ->on('tipo_cambios_globals.ano', '=', 'in_resultados.ano');
+            })
+            ->join('clasificacion_cuenta_resuls', function ($join) {
+                $join->on("clasificacion_cuenta_resuls.id_excel", "=", "in_resultados.id_excel")
+                    ->on("clasificacion_cuenta_resuls.cuenta", "=", "in_resultados.cuenta_master");
+            })
+            ->join('grupo_economicos_empresas', 'grupo_economicos_empresas.id_company', 'companies.id')
+            ->join('usuario_grupoeconomicos', 'usuario_grupoeconomicos.id_grupoeconomico', 'grupo_economicos_empresas.id_grupoeconomico')
+            ->where('grupo_economicos_empresas.id_grupoeconomico', $user->id_group_show)
+            ->where('usuario_grupoeconomicos.id_users', $user->id)
+            ->whereRaw("DATE(CONCAT(in_resultados.ano, '-', in_resultados.mes, '-01')) BETWEEN ? AND ?", [$fechaInicio, $fechaFin])
+            ->where('clasificacion_cuenta_resuls.irae', 'Si')
+            ->select(DB::raw("
+                'in_resultados' as tipo,
+                CAST(in_resultados.monto_uyu AS DECIMAL(18,3)) as amount_uyu,
+                CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) as amount_uyu_dolar_compra,
+                CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3)) as amount_uyu_dolar_venta,
+                CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3)) as amount_uyu_dolar_promedio,
+                CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3)) as amount_uyu_euro_promedio,
+                CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3)) as amount_uyu_francosuizo_promedio,
+                CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3)) as amount_uyu_ui,
+                CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3)) as amount_uyu_ipc,
+                CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3)) as amount_uyu_ipc_empresa
+            "));
+
+        $qExonPresupuestos = DB::table('in_presupuestos')
+            ->join('excelscompanies', 'excelscompanies.id', 'in_presupuestos.id_excel')
+            ->join('companies', 'companies.id', 'excelscompanies.id_company')
+            ->leftJoin('tipo_cambios', function ($join) {
+                $join->on('tipo_cambios.mes', '=', 'in_presupuestos.mes')
+                    ->on('tipo_cambios.ano', '=', 'in_presupuestos.ano')
+                    ->on('tipo_cambios.id_excel', '=', 'in_presupuestos.id_excel');
+            })
+            ->leftJoin('tipo_cambios_globals', function ($join) {
+                $join->on("tipo_cambios_globals.id_estudio", "=", "companies.id_estudio")
+                    ->on('tipo_cambios_globals.mes', '=', 'in_presupuestos.mes')
+                    ->on('tipo_cambios_globals.ano', '=', 'in_presupuestos.ano');
+            })
+            ->join('clasificacion_cuenta_resuls', function ($join) {
+                $join->on("clasificacion_cuenta_resuls.id_excel", "=", "in_presupuestos.id_excel")
+                    ->on("clasificacion_cuenta_resuls.cuenta", "=", "in_presupuestos.cuenta_master");
+            })
+            ->join('grupo_economicos_empresas', 'grupo_economicos_empresas.id_company', 'companies.id')
+            ->join('usuario_grupoeconomicos', 'usuario_grupoeconomicos.id_grupoeconomico', 'grupo_economicos_empresas.id_grupoeconomico')
+            ->where('grupo_economicos_empresas.id_grupoeconomico', $user->id_group_show)
+            ->where('usuario_grupoeconomicos.id_users', $user->id)
+            ->whereRaw("DATE(CONCAT(in_presupuestos.ano, '-', in_presupuestos.mes, '-01')) BETWEEN ? AND ?", [$fechaInicioPresupuesto, $fechaFinFiscal])
+            ->where('clasificacion_cuenta_resuls.irae', 'Si')
+            ->select(DB::raw("
+                'in_presupuesto' as tipo,
+                CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3)) as amount_uyu,
+                CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) as amount_uyu_dolar_compra,
+                CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3)) as amount_uyu_dolar_venta,
+                CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3)) as amount_uyu_dolar_promedio,
+                CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3)) as amount_uyu_euro_promedio,
+                CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3)) as amount_uyu_francosuizo_promedio,
+                CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3)) as amount_uyu_ui,
+                CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3)) as amount_uyu_ipc,
+                CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3)) as amount_uyu_ipc_empresa
+            "));
+
+        if ($user->id_company_show > 0) {
+            $qExonResultados->where('grupo_economicos_empresas.id_company', $user->id_company_show);
+            $qExonPresupuestos->where('grupo_economicos_empresas.id_company', $user->id_company_show);
+        }
+
+        if ($sucursal > 0) {
+            $sucursalas = sucursales::find($sucursal);
+            if ($sucursalas) {
+                $qExonResultados->join('sucursales', function ($join) {
+                    $join->on("sucursales.id_excel", "=", "in_resultados.id_excel")
+                        ->on("sucursales.nombre", "=", "in_resultados.sucursal");
+                })->where('sucursales.nombre', $sucursalas->nombre);
+
+                $qExonPresupuestos->join('sucursales', function ($join) {
+                    $join->on("sucursales.id_excel", "=", "in_presupuestos.id_excel")
+                        ->on("sucursales.nombre", "=", "in_presupuestos.sucursal");
+                })->where('sucursales.nombre', $sucursalas->nombre);
+            }
+        }
+
+        $unionExon = $qExonResultados->unionAll($qExonPresupuestos);
+
+        $exonPI = DB::table(DB::raw("({$unionExon->toSql()}) as sub_exon"))
+            ->mergeBindings($unionExon)
+            ->select(DB::raw("
+                SUM(amount_uyu) as amount_uyu,
+                SUM(amount_uyu_dolar_compra) as amount_uyu_dolar_compra,
+                SUM(amount_uyu_dolar_venta) as amount_uyu_dolar_venta,
+                SUM(amount_uyu_dolar_promedio) as amount_uyu_dolar_promedio,
+                SUM(amount_uyu_euro_promedio) as amount_uyu_euro_promedio,
+                SUM(amount_uyu_francosuizo_promedio) as amount_uyu_francosuizo_promedio,
+                SUM(amount_uyu_ui) as amount_uyu_ui,
+                SUM(amount_uyu_ipc) as amount_uyu_ipc,
+                SUM(amount_uyu_ipc_empresa) as amount_uyu_ipc_empresa
+            "))
+            ->first();
+
+        // -------------------------------------------------------------
+        // Query 4: Anticipos acumulados e IRAE
+        // -------------------------------------------------------------
+        $porcentajeIrae = $company ? (float) $company->porcentaje_irae : 0;
+        $cuentaAnticiposIrae = $company ? $company->cuenta_anticipos_irae : null;
+        $sumaAnticiposIrae = null;
+
+        if (!empty($cuentaAnticiposIrae)) {
+            $qAnticiposResultados = DB::table('in_resultados')
+                ->join('excelscompanies', 'excelscompanies.id', 'in_resultados.id_excel')
+                ->join('companies', 'companies.id', 'excelscompanies.id_company')
+                ->leftJoin('tipo_cambios', function ($join) {
+                    $join->on('tipo_cambios.mes', '=', 'in_resultados.mes')
+                        ->on('tipo_cambios.ano', '=', 'in_resultados.ano')
+                        ->on('tipo_cambios.id_excel', '=', 'in_resultados.id_excel');
+                })
+                ->leftJoin('tipo_cambios_globals', function ($join) {
+                    $join->on("tipo_cambios_globals.id_estudio", "=", "companies.id_estudio")
+                        ->on('tipo_cambios_globals.mes', '=', 'in_resultados.mes')
+                        ->on('tipo_cambios_globals.ano', '=', 'in_resultados.ano');
+                })
+                ->join('grupo_economicos_empresas', 'grupo_economicos_empresas.id_company', 'companies.id')
+                ->join('usuario_grupoeconomicos', 'usuario_grupoeconomicos.id_grupoeconomico', 'grupo_economicos_empresas.id_grupoeconomico')
+                ->where('grupo_economicos_empresas.id_grupoeconomico', $user->id_group_show)
+                ->where('usuario_grupoeconomicos.id_users', $user->id)
+                ->whereRaw("DATE(CONCAT(in_resultados.ano, '-', in_resultados.mes, '-01')) BETWEEN ? AND ?", [$fechaInicio, $fechaFin])
+                ->where('in_resultados.cuenta_master', $cuentaAnticiposIrae)
+                ->select(DB::raw("
+                    'in_resultados' as tipo,
+                    CAST(in_resultados.monto_uyu AS DECIMAL(18,3)) as amount_uyu,
+                    CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) as amount_uyu_dolar_compra,
+                    CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3)) as amount_uyu_dolar_venta,
+                    CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3)) as amount_uyu_dolar_promedio,
+                    CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3)) as amount_uyu_euro_promedio,
+                    CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3)) as amount_uyu_francosuizo_promedio,
+                    CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3)) as amount_uyu_ui,
+                    CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3)) as amount_uyu_ipc,
+                    CAST(in_resultados.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3)) as amount_uyu_ipc_empresa
+                "));
+
+            $qAnticiposPresupuestos = DB::table('in_presupuestos')
+                ->join('excelscompanies', 'excelscompanies.id', 'in_presupuestos.id_excel')
+                ->join('companies', 'companies.id', 'excelscompanies.id_company')
+                ->leftJoin('tipo_cambios', function ($join) {
+                    $join->on('tipo_cambios.mes', '=', 'in_presupuestos.mes')
+                        ->on('tipo_cambios.ano', '=', 'in_presupuestos.ano')
+                        ->on('tipo_cambios.id_excel', '=', 'in_presupuestos.id_excel');
+                })
+                ->leftJoin('tipo_cambios_globals', function ($join) {
+                    $join->on("tipo_cambios_globals.id_estudio", "=", "companies.id_estudio")
+                        ->on('tipo_cambios_globals.mes', '=', 'in_presupuestos.mes')
+                        ->on('tipo_cambios_globals.ano', '=', 'in_presupuestos.ano');
+                })
+                ->join('grupo_economicos_empresas', 'grupo_economicos_empresas.id_company', 'companies.id')
+                ->join('usuario_grupoeconomicos', 'usuario_grupoeconomicos.id_grupoeconomico', 'grupo_economicos_empresas.id_grupoeconomico')
+                ->where('grupo_economicos_empresas.id_grupoeconomico', $user->id_group_show)
+                ->where('usuario_grupoeconomicos.id_users', $user->id)
+                ->whereRaw("DATE(CONCAT(in_presupuestos.ano, '-', in_presupuestos.mes, '-01')) BETWEEN ? AND ?", [$fechaInicioPresupuesto, $fechaFinFiscal])
+                ->where('in_presupuestos.cuenta_master', $cuentaAnticiposIrae)
+                ->select(DB::raw("
+                    'in_presupuesto' as tipo,
+                    CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3)) as amount_uyu,
+                    CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_compra AS DECIMAL(18,3)) as amount_uyu_dolar_compra,
+                    CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_venta AS DECIMAL(18,3)) as amount_uyu_dolar_venta,
+                    CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.dolar_promedio AS DECIMAL(18,3)) as amount_uyu_dolar_promedio,
+                    CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.euro_promedio AS DECIMAL(18,3)) as amount_uyu_euro_promedio,
+                    CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.francosuizo_promedio AS DECIMAL(18,3)) as amount_uyu_francosuizo_promedio,
+                    CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ui AS DECIMAL(18,3)) as amount_uyu_ui,
+                    CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios_globals.ipc AS DECIMAL(18,3)) as amount_uyu_ipc,
+                    CAST(in_presupuestos.monto_uyu AS DECIMAL(18,3))/CAST(tipo_cambios.ipc_empresa AS DECIMAL(18,3)) as amount_uyu_ipc_empresa
+                "));
+
+            if ($user->id_company_show > 0) {
+                $qAnticiposResultados->where('grupo_economicos_empresas.id_company', $user->id_company_show);
+                $qAnticiposPresupuestos->where('grupo_economicos_empresas.id_company', $user->id_company_show);
+            }
+
+            $unionAnticipos = $qAnticiposResultados->unionAll($qAnticiposPresupuestos);
+
+            $sumaAnticiposIrae = DB::table(DB::raw("({$unionAnticipos->toSql()}) as sub_anticipos"))
+                ->mergeBindings($unionAnticipos)
+                ->select(DB::raw("
+                    SUM(amount_uyu) as amount_uyu,
+                    SUM(amount_uyu_dolar_compra) as amount_uyu_dolar_compra,
+                    SUM(amount_uyu_dolar_venta) as amount_uyu_dolar_venta,
+                    SUM(amount_uyu_dolar_promedio) as amount_uyu_dolar_promedio,
+                    SUM(amount_uyu_euro_promedio) as amount_uyu_euro_promedio,
+                    SUM(amount_uyu_francosuizo_promedio) as amount_uyu_francosuizo_promedio,
+                    SUM(amount_uyu_ui) as amount_uyu_ui,
+                    SUM(amount_uyu_ipc) as amount_uyu_ipc,
+                    SUM(amount_uyu_ipc_empresa) as amount_uyu_ipc_empresa
+                "))
+                ->first();
+        }
+
+        $data = [
+            'espacio_fiscal'               => $DataEspacioFiscal,
+            'exon_pi'                      => $exonPI,
+            'porcentaje_irae'              => $porcentajeIrae,
+            'suma_cuenta_anticipos_irae'   => $sumaAnticiposIrae
+        ];
+
+        return $this->sendResponse($data, 'Espacio Fiscal Acumulado recuperado correctamente');
+    }
     /**
      * Store a newly created in_resultado in storage.
      * POST /in_resultados
